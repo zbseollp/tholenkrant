@@ -1,0 +1,151 @@
+---
+import { getCollection } from "astro:content";
+import CurrentYear from "./CurrentYear.astro";
+import Logo from "./Logo.astro";
+import { SITE } from "@lib/site";
+
+interface Props {
+  recentPosts?: Array<{ slug: string; title: string }>;
+}
+const { recentPosts = [] } = Astro.props;
+
+const city = SITE.citySlug;
+const cityDisplay = SITE.name.replace(/\s*Krant\.?$/i, "").trim();
+
+const pages = await getCollection("pages");
+const existingSlugs = new Set(pages.map((p) => p.id.replace(/\.md$/, "")));
+
+function links(defs: Array<{ label: string; slug: string }>) {
+  return defs
+    .map(({ label, slug }) => ({ label, href: `/${slug}-${city}/`, exists: existingSlugs.has(`${slug}-${city}`) }))
+    .filter((l) => l.exists);
+}
+
+const gidsLinks = links([
+  { label: "Makelaar", slug: "makelaar" },
+  { label: "Fotograaf", slug: "fotograaf" },
+  { label: "Fysiotherapie", slug: "fysio" },
+  { label: "Kapper", slug: "kapper" },
+  { label: "Pedicure", slug: "pedicure" },
+  { label: "Notaris", slug: "notaris" },
+  { label: "Woonwinkel", slug: "woonwinkel" },
+  { label: "Massage", slug: "massage" },
+]);
+
+const omgevingLinks = links([
+  { label: "Overlijdensberichten", slug: "overlijdensberichten" },
+  { label: "Gebedstijden", slug: "gebedstijden" },
+  { label: "Stroomstoring", slug: "stroomstoring" },
+  { label: "Benzineprijs", slug: "benzineprijs" },
+  { label: "Camping", slug: "camping" },
+  { label: "Bed & Breakfast", slug: "bed-and-breakfast" },
+  { label: "Stemwijzer", slug: "stemwijzer" },
+]);
+
+const activiteitenLinks = links([
+  { label: "Kermis", slug: "kermis" },
+  { label: "Rommelmarkt", slug: "rommelmarkt" },
+  { label: "Bowlen", slug: "bowlen" },
+  { label: "Wandelroutes", slug: "wandelen" },
+  { label: "Restaurant", slug: "restaurant" },
+]);
+
+const bedrijvenLinks = links([
+  { label: "Rijschool", slug: "rijschool" },
+  { label: "Snackbar", slug: "snackbar" },
+  { label: "Kinderopvang", slug: "kinderopvang" },
+  { label: "Tuinmeubelen", slug: "tuinmeubelen" },
+  { label: "Tandarts", slug: "tandarts" },
+  { label: "Sportschool", slug: "sportschool" },
+  { label: "Hotel", slug: "hotel" },
+  { label: "Schoorsteenveger", slug: "schoorsteenveger" },
+]);
+---
+
+<footer class="border-t border-white/10 bg-ink-950 text-white">
+  <div class="container-page py-14">
+    <div class="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+
+      <!-- Logo + beschrijving -->
+      <div class="lg:col-span-1">
+        <Logo iconClass="h-9 w-9" textClass="text-lg" forceWhite={true} />
+        <p class="mt-4 text-sm text-white/60 leading-relaxed">
+          Altijd op de hoogte van het laatste nieuws in gemeente {cityDisplay} via {SITE.domain}.
+        </p>
+        <p class="mt-3 text-sm text-white/60">
+          Persberichten insturen? <a href="/contact/" class="text-white/80 hover:text-white underline">Neem contact met ons op.</a>
+        </p>
+        <a href="/sitemap/" class="mt-3 block text-sm text-white/60 hover:text-white transition-colors">Sitemap</a>
+        <p class="mt-4 text-xs text-white/40 leading-snug">© <span data-current-year>2026</span> {SITE.domain} is een merk van Krant.News Regionale nieuws groep.</p>
+      </div>
+
+      <!-- Informatie -->
+      <div>
+        <h3 class="text-sm font-bold text-white mb-4">Informatie</h3>
+        <ul class="space-y-2.5">
+          {[
+            { label: "Over ons", href: "/over-ons/" },
+            { label: "Contact", href: "/contact/" },
+            { label: "Blogs", href: "/blog/" },
+          ].map(({ label, href }) => (
+            <li><a href={href} class="text-sm text-white/60 hover:text-white transition-colors">{label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Bedrijvengids + Uit de omgeving -->
+      <div>
+        {gidsLinks.length > 0 && (
+          <>
+            <h3 class="text-sm font-bold text-white mb-4">Bedrijvengids</h3>
+            <ul class="space-y-2.5">
+              {gidsLinks.map(({ label, href }) => (
+                <li><a href={href} class="text-sm text-white/60 hover:text-white transition-colors">{label}</a></li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {omgevingLinks.length > 0 && (
+          <>
+            <h3 class="text-sm font-bold text-white mt-8 mb-4">Uit de omgeving</h3>
+            <ul class="space-y-2.5">
+              {omgevingLinks.map(({ label, href }) => (
+                <li><a href={href} class="text-sm text-white/60 hover:text-white transition-colors">{label}</a></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+
+      <!-- Activiteiten -->
+      <div>
+        {activiteitenLinks.length > 0 && (
+          <>
+            <h3 class="text-sm font-bold text-white mb-4">Activiteiten</h3>
+            <ul class="space-y-2.5">
+              {activiteitenLinks.map(({ label, href }) => (
+                <li><a href={href} class="text-sm text-white/60 hover:text-white transition-colors">{label}</a></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+
+      <!-- Lokale bedrijven -->
+      <div>
+        {bedrijvenLinks.length > 0 && (
+          <>
+            <h3 class="text-sm font-bold text-white mb-4">Lokale bedrijven</h3>
+            <ul class="space-y-2.5">
+              {bedrijvenLinks.map(({ label, href }) => (
+                <li><a href={href} class="text-sm text-white/60 hover:text-white transition-colors">{label}</a></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+
+    </div>
+  </div>
+</footer>

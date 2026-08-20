@@ -1,0 +1,112 @@
+---
+import { SITE } from "@lib/site";
+import Logo from "./Logo.astro";
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === "/") return path === "/";
+  return path.startsWith(href);
+};
+---
+
+<header id="site-header" class="sticky top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300">
+  <div class="container-page">
+    <div class="flex items-center justify-between h-16 md:h-20">
+      <Logo />
+
+      <nav class="hidden md:flex items-center gap-1" aria-label="Hoofdmenu">
+        {SITE.navigation.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "px-3 py-2 text-sm font-medium transition-colors rounded",
+              isActive(item.href)
+                ? "text-accent-600"
+                : "text-ink-800 hover:text-accent-600",
+            ]}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="/contact/" class="hidden md:inline-flex h-9 items-center rounded px-4 text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors">
+          Neem contact op
+        </a>
+        <button
+          type="button"
+          data-mobile-menu-toggle
+          aria-label="Open menu"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded border border-gray-200 text-ink-700"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-menu" data-mobile-menu hidden class="md:hidden border-t border-gray-200 bg-white">
+    <nav class="container-page py-3 flex flex-col gap-1" aria-label="Mobiel menu">
+      {SITE.navigation.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "px-3 py-2.5 text-sm font-medium rounded transition-colors",
+            isActive(item.href)
+              ? "text-accent-600"
+              : "text-ink-800 hover:text-accent-600",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a href="/contact/" class="mt-2 inline-flex h-9 items-center justify-center rounded px-4 text-sm font-bold text-white bg-accent-600">
+        Neem contact op
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  #site-header {
+    background-color: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    box-shadow: none;
+  }
+  #site-header[data-scrolled] {
+    background-color: #ffffff;
+    backdrop-filter: none;
+    border-bottom-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+</style>
+
+<script>
+  function setup() {
+    const toggle = document.querySelector<HTMLButtonElement>("[data-mobile-menu-toggle]");
+    const menu = document.querySelector<HTMLElement>("[data-mobile-menu]");
+    if (toggle && menu) {
+      toggle.addEventListener("click", () => {
+        const open = menu.hasAttribute("hidden");
+        if (open) { menu.removeAttribute("hidden"); toggle.setAttribute("aria-expanded", "true"); }
+        else { menu.setAttribute("hidden", ""); toggle.setAttribute("aria-expanded", "false"); }
+      });
+    }
+    const header = document.getElementById("site-header");
+    if (header) {
+      const update = () => window.scrollY > 20 ? header.setAttribute("data-scrolled", "") : header.removeAttribute("data-scrolled");
+      window.addEventListener("scroll", update, { passive: true });
+      update();
+    }
+  }
+  setup();
+  document.addEventListener("astro:after-swap", setup);
+</script>

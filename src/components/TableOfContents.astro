@@ -1,0 +1,89 @@
+---
+// Auto-generated TOC. Takes the `headings` array from astro:content render().
+// Renders an inline aside which JS moves after the first paragraph of the
+// article body for an editorial look. Only shows if there are 3+ headings.
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// Only h2 + h3 (skip h1 which is the post title, and h4+ which are too granular).
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = toc.length >= 3;
+---
+
+{showToc && (
+  <aside
+    data-toc
+    class="my-8 rounded-2xl border border-[color:var(--border)] bg-ink-50 dark:bg-ink-900/40 px-5 py-4 not-prose"
+    aria-labelledby="toc-title"
+  >
+    <button
+      type="button"
+      data-toc-toggle
+      aria-expanded="true"
+      aria-controls="toc-list"
+      class="flex w-full items-center justify-between gap-3 text-left"
+    >
+      <span id="toc-title" class="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
+        Inhoudsopgave
+      </span>
+      <svg data-toc-icon class="h-4 w-4 text-[color:var(--text-muted)] transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <ol id="toc-list" class="mt-3 space-y-1.5 text-sm">
+      {toc.map((h, i) => (
+        <li class:list={[h.depth === 3 && "pl-4"]}>
+          <a
+            href={`#${h.slug}`}
+            class="flex gap-2 text-[color:var(--text)] hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
+          >
+            <span class="text-[color:var(--text-muted)] tabular-nums">{i + 1}.</span>
+            <span>{h.text}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </aside>
+)}
+
+<script>
+  function setupToc() {
+    // Move the rendered TOC to after the first <p> in the article body
+    const toc = document.querySelector<HTMLElement>(".blog-article [data-toc]");
+    const proseRoot = document.querySelector<HTMLElement>(".blog-article .prose-wonenhuis");
+    if (toc && proseRoot && !toc.dataset.moved) {
+      const firstPara = proseRoot.querySelector<HTMLElement>("p:first-of-type");
+      if (firstPara) {
+        firstPara.after(toc);
+        toc.dataset.moved = "1";
+      }
+    }
+
+    // Collapse / expand
+    document.querySelectorAll<HTMLButtonElement>("[data-toc-toggle]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "1";
+      btn.addEventListener("click", () => {
+        const list = document.getElementById("toc-list");
+        const icon = btn.querySelector<HTMLElement>("[data-toc-icon]");
+        const expanded = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", String(!expanded));
+        if (list) list.hidden = expanded;
+        if (icon) icon.style.transform = expanded ? "rotate(-90deg)" : "rotate(0)";
+      });
+    });
+  }
+
+  setupToc();
+  document.addEventListener("astro:after-swap", setupToc);
+</script>

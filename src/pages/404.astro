@@ -1,0 +1,29 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+---
+
+<BaseLayout
+  title="Pagina niet gevonden"
+  description="De pagina die je zoekt bestaat niet (meer)."
+  noindex
+>
+  <Container as="section" class="section-pad text-center">
+    <p class="text-xs font-medium uppercase tracking-wider text-brand-700 dark:text-brand-400">
+      404
+    </p>
+    <h1 class="mt-3">Deze pagina bestaat niet (meer)</h1>
+    <p class="mt-6 text-lg text-[color:var(--text-muted)] max-w-xl mx-auto">
+      Misschien is hij verhuisd of bestond hij nooit. Hieronder een paar plekken
+      om verder te kijken.
+    </p>
+    <div class="mt-10 flex justify-center gap-3 flex-wrap">
+      <a href="/" class="inline-flex h-12 items-center rounded-full bg-brand-700 hover:bg-brand-800 dark:bg-brand-500 dark:hover:bg-brand-400 px-7 text-white dark:text-ink-950 font-medium transition-all">
+        Naar de homepage
+      </a>
+      <a href="/blog/" class="inline-flex h-12 items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] hover:bg-ink-100 dark:hover:bg-ink-800 px-7 font-medium transition-all">
+        Bekijk het blog
+      </a>
+    </div>
+  </Container>
+</BaseLayout>

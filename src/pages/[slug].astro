@@ -1,0 +1,22 @@
+---
+import { getCollection, render } from "astro:content";
+import BlogLayout from "@layouts/BlogLayout.astro";
+import { getRelatedPosts, readingMinutes } from "@lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const related = await getRelatedPosts(post, 6);
+const readMin = readingMinutes(post.body || "");
+---
+
+<BlogLayout post={post} headings={headings} related={related} readingMinutes={readMin}>
+  <Content />
+</BlogLayout>

@@ -1,0 +1,38 @@
+---
+// Google Analytics 4 loader, consent-gated.
+// Only fires after the user clicks Accept in the cookie banner (Phase 4.6).
+const measurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+---
+
+{
+  measurementId && (
+    <Fragment>
+      <script is:inline define:vars={{ measurementId }}>
+        (function () {
+          // Wait for explicit consent before injecting gtag.
+          function loadGA() {
+            if (window.__gaLoaded) return;
+            window.__gaLoaded = true;
+            const s = document.createElement("script");
+            s.async = true;
+            s.src = "https://www.googletagmanager.com/gtag/js?id=" + measurementId;
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              window.dataLayer.push(arguments);
+            }
+            window.gtag = gtag;
+            gtag("js", new Date());
+            gtag("config", measurementId, { anonymize_ip: true });
+          }
+
+          // Consent stored by the cookie banner under "wh-consent" = "granted" | "denied".
+          if (localStorage.getItem("wh-consent") === "granted") {
+            loadGA();
+          }
+          window.addEventListener("consent:granted", loadGA);
+        })();
+      </script>
+    </Fragment>
+  )
+}

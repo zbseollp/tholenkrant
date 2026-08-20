@@ -1,0 +1,294 @@
+@import "tailwindcss";
+@import "@fontsource-variable/dm-sans/wght.css";
+@import "@fontsource-variable/lora/wght.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "DM Sans Fallback";
+  src: local("Arial");
+  size-adjust: 105%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Lora Fallback";
+  src: local("Georgia");
+  size-adjust: 100%;
+  ascent-override: 100%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+
+@theme {
+  /* Brand -- deep navy, authoritative local journalism */
+  --color-brand-50:  #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  /* Accent -- news red for breaking/highlight */
+  --color-accent-50:  #fff1f2;
+  --color-accent-100: #ffe4e6;
+  --color-accent-200: #fecdd3;
+  --color-accent-300: #fda4af;
+  --color-accent-400: #fb7185;
+  --color-accent-500: #f43f5e;
+  --color-accent-600: #e11d48;
+  --color-accent-700: #be123c;
+  --color-accent-800: #9f1239;
+  --color-accent-900: #881337;
+  --color-accent-950: #4c0519;
+
+  /* Neutrals -- slate scale */
+  --color-ink-50:  #f8fafc;
+  --color-ink-100: #f1f5f9;
+  --color-ink-200: #e2e8f0;
+  --color-ink-300: #cbd5e1;
+  --color-ink-400: #94a3b8;
+  --color-ink-500: #64748b;
+  --color-ink-600: #475569;
+  --color-ink-700: #334155;
+  --color-ink-800: #1e293b;
+  --color-ink-900: #0f172a;
+  --color-ink-950: #020617;
+
+  /* Warm -- stone/warm gray, subtle newsprint feel */
+  --color-warm-50:  #fafaf9;
+  --color-warm-100: #f5f5f4;
+  --color-warm-200: #e7e5e4;
+  --color-warm-300: #d6d3d1;
+  --color-warm-400: #a8a29e;
+  --color-warm-500: #78716c;
+  --color-warm-600: #57534e;
+  --color-warm-700: #44403c;
+  --color-warm-800: #292524;
+  --color-warm-900: #1c1917;
+  --color-warm-950: #0c0a09;
+
+  --font-sans: "DM Sans Variable", "DM Sans Fallback", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Lora Variable", "Lora Fallback", ui-serif, Georgia, serif;
+
+  --text-h1: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+  --text-h2: clamp(1.25rem, 1.05rem + 1vw, 1.75rem);
+  --text-h3: clamp(1.1rem, 1rem + 0.5vw, 1.375rem);
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+
+  --spacing-section: clamp(2.5rem, 4.5vw, 5rem);
+  --container-prose: 70ch;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-raised: var(--color-ink-50);
+    --text: var(--color-ink-900);
+    --text-muted: var(--color-ink-500);
+    --border: var(--color-ink-200);
+    --primary: var(--color-ink-800);
+    --primary-hover: var(--color-ink-900);
+    --accent: var(--color-accent-600);
+    --accent-hover: var(--color-accent-700);
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --bg: var(--color-ink-950);
+    --surface: var(--color-ink-900);
+    --surface-raised: var(--color-ink-800);
+    --text: var(--color-ink-100);
+    --text-muted: var(--color-ink-400);
+    --border: var(--color-ink-800);
+    --primary: var(--color-brand-400);
+    --primary-hover: var(--color-brand-300);
+    --accent: var(--color-accent-400);
+    --accent-hover: var(--color-accent-300);
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.2s var(--ease-out-quart), color 0.2s var(--ease-out-quart);
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-brand-900);
+  }
+  .dark ::selection {
+    background-color: var(--color-brand-800);
+    color: var(--color-brand-100);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  /* Headings inside explicitly white-text sections must stay white */
+  .text-white h1, .text-white h2, .text-white h3, .text-white h4,
+  [class*="bg-brand-7"] h1, [class*="bg-brand-7"] h2, [class*="bg-brand-7"] h3,
+  [class*="bg-brand-8"] h1, [class*="bg-brand-8"] h2, [class*="bg-brand-8"] h3,
+  [class*="bg-brand-9"] h1, [class*="bg-brand-9"] h2, [class*="bg-brand-9"] h3 {
+    color: inherit;
+  }
+
+  h1 { font-size: var(--text-h1); }
+  h2 { font-size: var(--text-h2); }
+  h3 { font-size: var(--text-h3); }
+
+  .blog-article h1 {
+    font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+    line-height: 1.2;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration-color: color-mix(in oklab, var(--primary) 40%, transparent);
+    text-underline-offset: 3px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+  }
+  a:hover {
+    color: var(--primary-hover);
+    text-decoration-color: var(--primary-hover);
+  }
+
+  img, picture, svg, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+@layer components {
+  .prose-nieuws {
+    max-width: var(--container-prose);
+    margin-inline: auto;
+  }
+  .prose-nieuws > * + * { margin-top: 1.25rem; }
+  .prose-nieuws h2 { margin-top: 2.5rem; margin-bottom: 0.75rem; font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem); }
+  .prose-nieuws h3 { margin-top: 2rem; margin-bottom: 0.5rem; font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem); }
+
+  .prose-page h2 { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem); margin-top: 2rem; }
+  .prose-page h3 { font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem); margin-top: 1.5rem; }
+  .prose-page h4 { font-size: 1rem; margin-top: 1.25rem; }
+  .prose-nieuws p { font-size: var(--text-body); }
+  .prose-nieuws ul, .prose-nieuws ol { padding-left: 1.5rem; }
+  .prose-nieuws li + li { margin-top: 0.5rem; }
+  .prose-nieuws img { border-radius: 0.5rem; margin-block: 2rem; }
+  .prose-nieuws blockquote {
+    border-inline-start: 4px solid var(--accent);
+    padding-inline-start: 1.25rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .prose-nieuws code:not(pre code) {
+    background-color: var(--color-ink-100);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+  .dark .prose-nieuws code:not(pre code) {
+    background-color: var(--color-ink-800);
+  }
+
+  .label-category {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-brand-700);
+    background-color: var(--color-brand-50);
+    border: 1px solid var(--color-brand-200);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+  }
+  .dark .label-category {
+    color: var(--color-brand-300);
+    background-color: var(--color-brand-950);
+    border-color: var(--color-brand-800);
+  }
+
+  .label-breaking {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background-color: var(--color-accent-600);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+  }
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-scroll {
+  animation: ticker-scroll 28s linear infinite;
+}
+.ticker-scroll:hover {
+  animation-play-state: paused;
+}
+
+@layer utilities {
+  .container-page {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-page { padding-inline: 2rem; }
+  }
+
+  .section-pad {
+    padding-block: var(--spacing-section);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    transition: opacity 0.5s var(--ease-out-quart), transform 0.5s var(--ease-out-quart);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,12 @@
+---
+const year = new Date().getFullYear();
+---
+
+<span data-current-year>{year}</span>
+
+<script>
+  // Update at runtime so static caches don't ship a stale year past Jan 1.
+  document.querySelectorAll<HTMLElement>("[data-current-year]").forEach((el) => {
+    el.textContent = new Date().getFullYear().toString();
+  });
+</script>

@@ -1,0 +1,72 @@
+﻿---
+import { SITE } from "@lib/site";
+const accessKey = "281f477d-7744-407d-9b6a-9b8d9c6abe3c";
+---
+
+<form
+  action="https://api.web3forms.com/submit"
+  method="POST"
+  class="space-y-5"
+  novalidate
+>
+  <input type="hidden" name="access_key" value={accessKey} />
+  <input type="hidden" name="from_name" value={`${SITE.name} contactformulier`} />
+  <input type="hidden" name="subject" value={`Nieuw bericht via ${SITE.domain}`} />
+  <input type="hidden" name="redirect" value={`${SITE.url}/contact/thanks/`} data-redirect />
+  <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" />
+  <div>
+    <label for="name" class="block text-sm font-medium mb-1">Naam <span aria-hidden="true" class="text-brand-700 dark:text-brand-400">*</span></label>
+    <input id="name" name="name" type="text" required minlength="2" maxlength="120" autocomplete="name" class="block w-full h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-4 text-base focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition-colors" />
+  </div>
+  <div>
+    <label for="email" class="block text-sm font-medium mb-1">E-mail <span aria-hidden="true" class="text-brand-700 dark:text-brand-400">*</span></label>
+    <input id="email" name="email" type="email" required autocomplete="email" class="block w-full h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-4 text-base focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition-colors" />
+  </div>
+  <div>
+    <label for="subject" class="block text-sm font-medium mb-1">Onderwerp</label>
+    <input id="subject" name="form_subject" type="text" maxlength="200" class="block w-full h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-4 text-base focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition-colors" />
+  </div>
+  <div>
+    <label for="message" class="block text-sm font-medium mb-1">Bericht <span aria-hidden="true" class="text-brand-700 dark:text-brand-400">*</span></label>
+    <textarea id="message" name="message" required minlength="10" maxlength="3000" rows="6" class="block w-full rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-4 py-3 text-base focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none transition-colors resize-y"></textarea>
+  </div>
+  <div class="h-captcha" data-sitekey="ec441b56-b0aa-4ca6-8c46-3fac80768ee6"></div>
+  <div data-form-error hidden role="alert" class="rounded-xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-900 dark:text-red-200">
+    Er ging iets mis. Controleer je gegevens en probeer het opnieuw.
+  </div>
+  <button type="submit" data-form-submit class="inline-flex h-12 items-center justify-center rounded-full bg-brand-700 hover:bg-brand-800 dark:bg-brand-500 dark:hover:bg-brand-400 px-8 text-base font-medium text-white dark:text-ink-950 shadow-sm hover:shadow transition-all">
+    Verzenden
+  </button>
+</form>
+
+<script is:inline>
+  (function () {
+    let captchaLoaded = false;
+    function loadCaptchaScript() {
+      if (captchaLoaded) return;
+      captchaLoaded = true;
+      const s = document.createElement("script");
+      s.src = "https://js.hcaptcha.com/1/api.js";
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
+    }
+    function setup() {
+      document.querySelectorAll("form[action*='web3forms']").forEach((form) => {
+        if (form.dataset.bound) return;
+        form.dataset.bound = "1";
+        const redirectInput = form.querySelector("[data-redirect]");
+        if (redirectInput) redirectInput.value = window.location.origin + "/contact/thanks/";
+        form.addEventListener("focusin", loadCaptchaScript, { once: true });
+        form.addEventListener("pointerenter", loadCaptchaScript, { once: true });
+        form.addEventListener("submit", () => {
+          loadCaptchaScript();
+          const btn = form.querySelector("[data-form-submit]");
+          if (btn) { btn.setAttribute("disabled", ""); btn.textContent = "Verzenden..."; }
+        });
+      });
+    }
+    setup();
+    document.addEventListener("astro:after-swap", setup);
+  })();
+</script>

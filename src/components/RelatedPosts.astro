@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BlogPostCard from "./BlogPostCard.astro";
+import { postUrl } from "@lib/posts";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+  heading?: string;
+}
+
+const { posts, heading = "Lees ook" } = Astro.props;
+---
+
+{posts.length > 0 && (
+  <section class="mt-16 pt-12 border-t border-[color:var(--border)]" aria-labelledby="related-heading">
+    <div class="flex items-end justify-between gap-6 mb-8 flex-wrap">
+      <div>
+        <p class="text-xs font-medium uppercase tracking-wider text-brand-700 dark:text-brand-400">
+          Verder lezen
+        </p>
+        <h2 id="related-heading" class="mt-2 text-2xl md:text-3xl">{heading}</h2>
+      </div>
+      <a href="/blog/" class="inline-flex h-10 items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] hover:bg-ink-100 dark:hover:bg-ink-800 px-4 text-sm font-medium transition-all">
+        Alle artikelen →
+      </a>
+    </div>
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <BlogPostCard
+          href={postUrl(post)}
+          title={post.data.title}
+          excerpt={post.data.metaDescription}
+          date={post.data.date}
+          image={post.data.featuredImage}
+          imageAlt={post.data.featuredImageAlt}
+          category={post.data.categories[0]}
+        />
+      ))}
+    </div>
+  </section>
+)}

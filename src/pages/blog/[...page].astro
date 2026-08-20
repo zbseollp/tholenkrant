@@ -1,0 +1,86 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import BlogPostCard from "@components/BlogPostCard.astro";
+import { SITE } from "@lib/site";
+import { getAllPosts, getRecentPosts, postUrl } from "@lib/posts";
+
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
+  const allPosts = await getAllPosts();
+  return paginate(allPosts, { pageSize: 12 });
+}
+
+const { page } = Astro.props;
+const recentPosts = (await getRecentPosts(6)).map((p) => ({ slug: p.id, title: p.data.title }));
+
+const currentPage = page.currentPage;
+const totalPages = page.lastPage;
+
+// Windowed pagination: first, window around current, last — with null gaps
+const paginationWindow = 2;
+const rawPages: number[] = [1];
+for (let n = Math.max(2, currentPage - paginationWindow); n <= Math.min(totalPages - 1, currentPage + paginationWindow); n++) {
+  if (!rawPages.includes(n)) rawPages.push(n);
+}
+if (totalPages > 1 && !rawPages.includes(totalPages)) rawPages.push(totalPages);
+const paginationItems: (number | null)[] = [];
+rawPages.forEach((n, i) => {
+  if (i > 0 && rawPages[i - 1] !== null && n - rawPages[i - 1] > 1) paginationItems.push(null);
+  paginationItems.push(n);
+});
+const pageHref = (n: number) => n === 1 ? "/blog/" : `/blog/${n}/`;
+
+const title = currentPage === 1
+  ? `Alle artikelen | ${SITE.name}`
+  : `Alle artikelen - pagina ${currentPage} | ${SITE.name}`;
+const description = `Alle artikelen op ${SITE.domain}${currentPage > 1 ? ` - pagina ${currentPage}` : ""}.`;
+---
+
+<BaseLayout title={title} description={description} recentPosts={recentPosts}>
+  <Container as="section" class="section-pad">
+    <h1 class="mt-3">Alle artikelen</h1>
+    <p class="mt-4 max-w-3xl text-lg text-[color:var(--text-muted)]">
+      Welkom op de artikelenpagina van {SITE.name}. Hier vind je al onze stukken, gerangschikt op datum.
+    </p>
+
+    <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {page.data.map((post: any, i: number) => {
+        const catName = post.data.categories[0];
+        return (
+          <BlogPostCard
+            href={postUrl(post)}
+            title={post.data.title}
+            excerpt={post.data.metaDescription}
+            date={post.data.date}
+            image={post.data.featuredImage}
+            imageAlt={post.data.featuredImageAlt}
+            category={catName}
+            priority={i === 0 && currentPage === 1}
+          />
+        );
+      })}
+    </div>
+
+    {totalPages > 1 && (
+      <nav class="mt-14 flex items-center justify-center gap-2 flex-wrap" aria-label="Paginering">
+        {page.url.prev && (
+          <a href={page.url.prev} class="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 text-sm font-medium text-[color:var(--text)] hover:border-brand-500 hover:text-brand-700 transition-colors">
+            &larr; Vorige
+          </a>
+        )}
+        <div class="flex items-center gap-1 flex-wrap justify-center">
+          {paginationItems.map((n) =>
+            n === null
+              ? <span class="inline-flex h-10 w-8 items-center justify-center text-[color:var(--text-muted)] text-sm select-none">&hellip;</span>
+              : <a href={pageHref(n)} aria-current={n === currentPage ? "page" : undefined} class={n === currentPage ? "inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold bg-brand-700 text-white" : "inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] hover:border-brand-500 hover:text-brand-700 transition-colors"}>{n}</a>
+          )}
+        </div>
+        {page.url.next && (
+          <a href={page.url.next} class="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 text-sm font-medium text-[color:var(--text)] hover:border-brand-500 hover:text-brand-700 transition-colors">
+            Volgende &rarr;
+          </a>
+        )}
+      </nav>
+    )}
+  </Container>
+</BaseLayout>

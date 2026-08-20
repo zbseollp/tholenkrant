@@ -1,0 +1,234 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import { SITE } from "@lib/site";
+import bedrijven from "@data/bedrijvengids.json";
+import { slugify } from "@lib/slugify";
+
+const cityDisplay = SITE.name.replace(/\s*Krant\.?$/i, "").replace(/\s*krant\.?$/i, "").trim();
+const title = `Bedrijvengids ${cityDisplay} | ${SITE.name}`;
+const description = `Overzicht van lokale bedrijven en dienstverleners in ${cityDisplay}. Vind kappers, restaurants, aannemers, zorgverleners en meer in de regio.`;
+
+const categories = [...new Set(bedrijven.map((b) => b.category).filter(Boolean))].sort();
+const hasCategories = categories.length > 0;
+
+const CATEGORY_KEYWORDS: { slug: string; label: string; keywords: string[] }[] = [
+  { slug: "kapper", label: "Kapper", keywords: ["kapper", "haircreation", "hairstyling", "hairstyle", "hairsalon", "barbershop", "barber", "kappers", "haar salon", "hair & nails", "hair nails"] },
+  { slug: "restaurant", label: "Restaurant", keywords: ["restaurant", "eetcafe", "eet cafe", "pizzeria", "brasserie", "bistro", "trattoria"] },
+  { slug: "snackbar", label: "Snackbar", keywords: ["snackbar", "snack bar", "cafetaria", "frituur"] },
+  { slug: "camping", label: "Camping", keywords: ["camping"] },
+  { slug: "hotel", label: "Hotel", keywords: ["hotel", "motel"] },
+  { slug: "bed-and-breakfast", label: "Bed & Breakfast", keywords: ["bed and breakfast", "bed & breakfast", "b&b"] },
+  { slug: "fotograaf", label: "Fotograaf", keywords: ["photography", "fotografie", "fotograaf", "photo"] },
+  { slug: "tandarts", label: "Tandarts", keywords: ["tandarts", "dental"] },
+  { slug: "fysio", label: "Fysiotherapeut", keywords: ["fysio"] },
+  { slug: "massage", label: "Massage", keywords: ["massage", "schoonheidssalon", "beauty"] },
+  { slug: "sportschool", label: "Sportschool", keywords: ["sportschool", "fitness", "gym", "crossfit"] },
+  { slug: "kinderopvang", label: "Kinderopvang", keywords: ["kinderopvang", "kinderdagverblijf", "opvang"] },
+  { slug: "makelaar", label: "Makelaar", keywords: ["makelaar", "makelaardij"] },
+  { slug: "notaris", label: "Notaris", keywords: ["notaris"] },
+  { slug: "rijschool", label: "Rijschool", keywords: ["rijschool"] },
+  { slug: "pedicure", label: "Pedicure", keywords: ["pedicure"] },
+  { slug: "woonwinkel", label: "Woonwinkel", keywords: ["woonwinkel", "interieur", "meubel"] },
+  { slug: "bowlen", label: "Bowlen", keywords: ["bowlen", "bowling"] },
+];
+
+function inferCategoryLabel(b: typeof bedrijven[0]): string {
+  if (b.category) return b.category;
+  const haystack = b.title.toLowerCase();
+  return CATEGORY_KEYWORDS.find((c) => c.keywords.some((kw) => haystack.includes(kw)))?.label ?? "";
+}
+
+// Group alphabetically by first letter
+const letterMap: Record<string, typeof bedrijven> = {};
+for (const b of bedrijven) {
+  if (!b.title) continue;
+  const letter = b.title[0].toUpperCase().replace(/[^A-Z]/, "#");
+  if (!letterMap[letter]) letterMap[letter] = [];
+  letterMap[letter].push(b);
+}
+const letters = Object.keys(letterMap).sort((a, b) => (a === "#" ? 1 : b === "#" ? -1 : a.localeCompare(b)));
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="jsonld">
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `Bedrijvengids ${cityDisplay}`,
+        description,
+        url: `${SITE.url}/bedrijvengids/`,
+        numberOfItems: bedrijven.length,
+        itemListElement: bedrijven.slice(0, 10).map((b, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: { "@type": "LocalBusiness", name: b.title, address: { "@type": "PostalAddress", streetAddress: b.street, addressLocality: b.city }, telephone: b.phone || undefined, url: b.website || undefined },
+        })),
+      })}
+    />
+  </Fragment>
+
+  <!-- Header -->
+  <div class="bg-ink-900 text-white py-12">
+    <Container>
+      <p class="text-xs font-bold uppercase tracking-wider text-brand-300 mb-2">Lokale gids</p>
+      <h1 class="text-3xl md:text-4xl font-display font-bold">Bedrijvengids {cityDisplay}</h1>
+      <p class="mt-3 text-brand-100 text-lg max-w-2xl">
+        {bedrijven.length} lokale bedrijven en dienstverleners in {cityDisplay} en directe omgeving.
+      </p>
+
+      <!-- Search in header -->
+      <div class="mt-6 relative max-w-lg">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+        <input
+          id="search"
+          type="search"
+          placeholder="Zoek bedrijf, adres of telefoonnummer..."
+          class="w-full h-12 rounded-xl bg-white/10 border border-white/20 pl-11 pr-4 text-white placeholder-white/40 text-sm focus:outline-none focus:bg-white/15 focus:border-white/40 transition-colors"
+          autocomplete="off"
+        />
+        <span id="search-count" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs hidden"></span>
+      </div>
+    </Container>
+  </div>
+
+  <Container as="section" class="section-pad">
+
+    {/* Category filter (only when categories exist) */}
+    {hasCategories && (
+      <div class="mb-8 flex flex-wrap gap-2" id="cat-filters">
+        <button data-cat="all" data-active="true" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-colors">
+          Alle ({bedrijven.length})
+        </button>
+        {categories.map((cat) => (
+          <button data-cat={cat} class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium transition-colors">
+            {cat}
+          </button>
+        ))}
+      </div>
+    )}
+
+    {/* A-Z letter navigation */}
+    <div class="mb-6 flex flex-wrap gap-1.5" id="az-nav">
+      {letters.map((l) => (
+        <a href={`#sectie-${l}`} class="az-link inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] text-sm font-bold text-[color:var(--text)] hover:border-accent-500 hover:text-accent-600 transition-colors" data-letter={l}>
+          {l}
+        </a>
+      ))}
+    </div>
+
+    {/* Businesses grouped by letter */}
+    <div id="bedrijven-list">
+      {letters.map((letter) => (
+        <div class="letter-section mb-10" id={`sectie-${letter}`} data-letter={letter}>
+          <h2 class="text-2xl font-bold text-ink-900 border-b-2 border-accent-600 pb-2 mb-4 inline-block pr-4">{letter}</h2>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {letterMap[letter].map((b) => (
+              <a
+                href={`/${slugify(b.title)}/`}
+                class="bedrijf-card group flex flex-col gap-1.5 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 hover:border-accent-400 hover:shadow-sm transition-all no-underline"
+                data-cat={b.category || ""}
+                data-search={`${b.title} ${b.street || ""} ${b.city || ""} ${b.phone || ""}`.toLowerCase()}
+              >
+                <p class="font-semibold text-[color:var(--text)] text-sm leading-snug group-hover:text-accent-600 transition-colors">{b.title}</p>
+                {(b.street || b.city) && (
+                  <p class="text-xs text-[color:var(--text-muted)]">{[b.street, b.city].filter(Boolean).join(", ")}</p>
+                )}
+                {inferCategoryLabel(b) && (
+                  <span class="text-xs text-accent-600 font-medium">{inferCategoryLabel(b)}</span>
+                )}
+                {b.phone && (
+                  <p class="text-xs text-[color:var(--text-muted)]">{b.phone}</p>
+                )}
+                <span class="mt-1 text-xs font-semibold text-accent-600 group-hover:underline">Meer informatie &rarr;</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty state -->
+    <div id="no-results" hidden class="py-16 text-center text-[color:var(--text-muted)]">
+      <p class="text-lg font-semibold">Geen bedrijven gevonden.</p>
+      <p class="text-sm mt-1">Probeer een andere zoekopdracht.</p>
+    </div>
+  </Container>
+</BaseLayout>
+
+<script is:inline>
+(function () {
+  var activeCat = "all";
+
+  function getCards() { return Array.from(document.querySelectorAll(".bedrijf-card")); }
+  function getSections() { return Array.from(document.querySelectorAll(".letter-section")); }
+
+  function filter(q) {
+    q = (q || "").toLowerCase().trim();
+    var cards = getCards();
+    var visible = 0;
+
+    cards.forEach(function(card) {
+      var catMatch = activeCat === "all" || card.dataset.cat === activeCat;
+      var textMatch = !q || card.dataset.search.includes(q);
+      var show = catMatch && textMatch;
+      card.style.display = show ? "" : "none";
+      if (show) visible++;
+    });
+
+    // Hide letter sections that have no visible cards
+    getSections().forEach(function(section) {
+      var anyVisible = Array.from(section.querySelectorAll(".bedrijf-card")).some(function(c) { return c.style.display !== "none"; });
+      section.style.display = anyVisible ? "" : "none";
+      // Update A-Z nav link
+      var navLink = document.querySelector('.az-link[data-letter="' + section.dataset.letter + '"]');
+      if (navLink) navLink.style.opacity = anyVisible ? "" : "0.3";
+    });
+
+    var noResults = document.getElementById("no-results");
+    if (noResults) noResults.hidden = visible > 0;
+
+    var countEl = document.getElementById("search-count");
+    if (countEl) {
+      if (q) {
+        countEl.textContent = visible + " resultaten";
+        countEl.classList.remove("hidden");
+      } else {
+        countEl.classList.add("hidden");
+      }
+    }
+  }
+
+  var searchInput = document.getElementById("search");
+  if (searchInput) {
+    searchInput.addEventListener("input", function(e) { filter(e.target.value); });
+  }
+
+  // Category buttons
+  document.querySelectorAll(".filter-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      activeCat = btn.dataset.cat;
+      document.querySelectorAll(".filter-btn").forEach(function(b) {
+        b.dataset.active = b.dataset.cat === activeCat ? "true" : "";
+      });
+      var q = searchInput ? searchInput.value : "";
+      filter(q);
+    });
+  });
+})();
+</script>
+
+<style>
+  .filter-btn {
+    border: 1px solid var(--border, #e5e7eb);
+    background: var(--surface, #fff);
+    color: var(--text-muted, #6b7280);
+  }
+  .filter-btn[data-active="true"] {
+    background: var(--color-brand-700, #1e3a8a);
+    color: #fff;
+    border-color: transparent;
+  }
+</style>

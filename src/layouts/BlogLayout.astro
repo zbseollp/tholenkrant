@@ -1,0 +1,207 @@
+---
+import type { CollectionEntry, MarkdownHeading } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import Container from "@components/Container.astro";
+import RelatedPosts from "@components/RelatedPosts.astro";
+import WeatherWidget from "@components/WeatherWidget.astro";
+import { SITE } from "@lib/site";
+import { formatDateNL } from "@lib/posts";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  headings?: MarkdownHeading[];
+  related?: CollectionEntry<"blog">[];
+  readingMinutes?: number;
+}
+
+const { post, headings = [], related = [], readingMinutes } = Astro.props;
+const { data } = post;
+
+const ogImage = data.featuredImage || "/og-default.png";
+const publishedTime = data.date.toISOString();
+
+const categorySlug = SITE.categories.find((c) => data.categories.includes(c.name))?.slug ?? null;
+const categoryName = SITE.categories.find((c) => c.slug === categorySlug)?.name ?? data.categories[0] ?? null;
+---
+
+<BaseLayout
+  title={data.metaTitle || data.title}
+  description={data.metaDescription}
+  ogImage={ogImage}
+  ogType="article"
+  publishedTime={publishedTime}
+>
+  <Fragment slot="jsonld">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": data.title,
+      "description": data.metaDescription,
+      "datePublished": publishedTime,
+      "image": ogImage.startsWith("http") ? ogImage : `${SITE.url}${ogImage}`,
+      "author": { "@type": "Organization", "name": SITE.author },
+      "publisher": {
+        "@type": "Organization",
+        "name": SITE.name,
+        "logo": { "@type": "ImageObject", "url": `${SITE.url}/favicon.svg` },
+      },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": `${SITE.url}${Astro.url.pathname}` },
+    })} />
+  </Fragment>
+
+  <!-- Reading progress bar -->
+  <div id="progress-bar" class="fixed top-0 left-0 h-0.5 bg-accent-600 z-50 transition-all duration-100" style="width:0%"></div>
+
+  <!-- Hero image (full width if available) -->
+  {data.featuredImage && (
+    <div class="w-full bg-ink-900 overflow-hidden" style="max-height:480px">
+      <img
+        src={data.featuredImage}
+        alt={data.featuredImageAlt || data.title}
+        class="w-full object-cover object-center"
+        style="max-height:480px; width:100%"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </div>
+  )}
+
+  <!-- Breadcrumb strip -->
+  <div class="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
+    <Container class="py-2.5">
+      <nav aria-label="Kruimelpad" class="text-xs text-[color:var(--text-muted)] flex flex-wrap items-center gap-1.5">
+        <a href="/" class="text-brand-700 dark:text-brand-400 hover:text-brand-900 dark:hover:text-brand-200 transition-colors">Home</a>
+        <span aria-hidden="true" class="text-[color:var(--border)]">/</span>
+        <a href="/blog/" class="text-brand-700 dark:text-brand-400 hover:text-brand-900 dark:hover:text-brand-200 transition-colors">Nieuws</a>
+        {categoryName && (
+          <>
+            <span aria-hidden="true" class="text-[color:var(--border)]">/</span>
+            <span class="text-[color:var(--text)]">{categoryName}</span>
+          </>
+        )}
+      </nav>
+    </Container>
+  </div>
+
+  <Container class="py-8 md:py-12">
+    <div class="grid lg:grid-cols-[1fr,320px] gap-10 xl:gap-16">
+
+      <!-- Main article -->
+      <article>
+        <!-- Article header -->
+        <header class="mb-8">
+          <div class="flex flex-wrap items-center gap-2 mb-4">
+            {categoryName && (
+              <span class="inline-flex items-center gap-1.5 rounded-sm bg-accent-600 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+                {categoryName}
+              </span>
+            )}
+            {data.breaking && (
+              <span class="label-breaking">
+                <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse inline-block"></span>
+                Breaking
+              </span>
+            )}
+          </div>
+
+          <h1 class="font-display font-bold leading-tight text-balance" style="font-size:clamp(1.4rem,1.1rem + 1.2vw,2rem); color:var(--text)">
+            {data.title}
+          </h1>
+
+          {data.metaDescription && (
+            <p class="mt-3 text-lg text-[color:var(--text-muted)] leading-relaxed font-light">
+              {data.metaDescription}
+            </p>
+          )}
+
+          <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[color:var(--text-muted)] border-t border-[color:var(--border)] pt-4">
+            <div class="flex items-center gap-2">
+              <div class="h-7 w-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+                <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                </svg>
+              </div>
+              <span class="font-medium text-[color:var(--text)]">Redactie {SITE.name}</span>
+            </div>
+            <span aria-hidden="true" class="hidden sm:block text-[color:var(--border)]">|</span>
+            <time datetime={publishedTime} class="flex items-center gap-1.5">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
+              </svg>
+              {formatDateNL(data.date)}
+            </time>
+            {readingMinutes && (
+              <>
+                <span aria-hidden="true" class="hidden sm:block text-[color:var(--border)]">|</span>
+                <span class="flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                  </svg>
+                  {readingMinutes} min lezen
+                </span>
+              </>
+            )}
+          </div>
+        </header>
+
+        <!-- Article body -->
+        <div class="prose-nieuws text-[color:var(--text)]">
+          <slot />
+        </div>
+
+        <!-- Tags / share -->
+        <div class="mt-10 pt-8 border-t border-[color:var(--border)] flex flex-wrap items-center justify-between gap-4">
+          <div class="text-xs text-[color:var(--text-muted)]">
+            Gepubliceerd op <time datetime={publishedTime}>{formatDateNL(data.date)}</time> door de redactie van {SITE.name}
+          </div>
+          <a
+            href="/contact/"
+            class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/20 px-4 py-2 text-xs font-medium text-[color:var(--text-muted)] hover:text-brand-700 dark:hover:text-brand-400 transition-all"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/>
+            </svg>
+            Tip de redactie
+          </a>
+        </div>
+
+        <!-- Related posts -->
+        <RelatedPosts posts={related} />
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="space-y-6 lg:pt-0">
+
+        <!-- Rubrieken -->
+        <div class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[color:var(--text)] mb-4">Rubrieken</h3>
+          <ul class="space-y-1">
+            {SITE.categories.map((cat) => (
+              <li>
+                <a href="/blog/" class="flex items-center justify-between py-1.5 px-2 rounded-lg text-sm text-[color:var(--text-muted)] hover:text-brand-700 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/20 transition-colors">
+                  <span>{cat.name}</span>
+                  <svg class="h-3.5 w-3.5 opacity-40" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+  </Container>
+
+  <script>
+    const bar = document.getElementById("progress-bar");
+    if (bar) {
+      window.addEventListener("scroll", () => {
+        const doc = document.documentElement;
+        const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+        bar.style.width = Math.min(pct, 100) + "%";
+      }, { passive: true });
+    }
+  </script>
+</BaseLayout>

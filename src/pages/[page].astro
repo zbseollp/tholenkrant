@@ -1,0 +1,173 @@
+﻿---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import { SITE } from "@lib/site";
+import bedrijven from "@data/bedrijvengids.json";
+import { slugify } from "@lib/slugify";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  return pages
+    .filter((page) => !page.id.includes("magic") && page.id !== "company-page" && page.id !== "bedrijvengids")
+    .map((page) => ({
+      params: { page: page.id },
+      props: { page },
+    }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+
+const title = page.data.metaTitle ?? `${page.data.title} | ${SITE.name}`;
+const description = page.data.metaDescription ?? "";
+
+const slug = page.id;
+
+const keywordMap: Record<string, string[]> = {
+  "kapper": ["kapper", "hair", "kapsel", "barber"],
+  "kappers": ["kapper", "hair", "kapsel", "barber"],
+  "tandarts": ["tandarts", "tand", "mond"],
+  "restaurant": ["restaurant", "eten", "keuken", "cafe", "cafetaria", "pizzeria", "snackbar"],
+  "fysio": ["fysio"],
+  "massage": ["massage", "schoonheid"],
+  "sportschool": ["sport", "fitness"],
+  "kinderopvang": ["kinderopvang", "kinderdagverblijf", "opvang"],
+  "hotel": ["hotel", "bed & breakfast", "camping", "accommodatie"],
+  "fotograaf": ["fotograaf"],
+  "makelaar": ["makelaar"],
+  "notaris": ["notaris"],
+  "rijschool": ["rijschool"],
+};
+
+const matchKeywords = Object.entries(keywordMap).find(([k]) => slug.startsWith(k))?.[1] ?? [];
+const relatedBedrijven = matchKeywords.length
+  ? bedrijven.filter((b) =>
+      matchKeywords.some((kw) =>
+        b.title.toLowerCase().includes(kw) || (b.category ?? "").toLowerCase().includes(kw)
+      )
+    ).slice(0, 6)
+  : [];
+
+const cityP = SITE.citySlug;
+const cityDisplayP = SITE.name.replace(/\s*Krant\.?$/i, "").trim();
+const allPages = await getCollection("pages");
+const allPageSlugs = new Set(allPages.map((p) => p.id.replace(/\.md$/, "")));
+const otherPages = [
+  { label: "Kappers", slug: "kapper" },
+  { label: "Tandarts", slug: "tandarts" },
+  { label: "Restaurant", slug: "restaurant" },
+  { label: "Makelaar", slug: "makelaar" },
+  { label: "Rijschool", slug: "rijschool" },
+  { label: "Sportschool", slug: "sportschool" },
+  { label: "Kinderopvang", slug: "kinderopvang" },
+  { label: "Hotel", slug: "hotel" },
+  { label: "Notaris", slug: "notaris" },
+  { label: "Massage", slug: "massage" },
+  { label: "Wandelen", slug: "wandelen" },
+  { label: "Funda", slug: "funda" },
+]
+  .filter((p) => allPageSlugs.has(`${p.slug}-${cityP}`))
+  .map((p) => ({ label: p.label, href: `/${p.slug}-${cityP}/` }))
+  .filter((p) => p.href !== `/${slug}/`);
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="jsonld">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": page.data.title,
+      "description": description,
+      "url": `${SITE.url}/${slug}/`,
+      "inLanguage": "nl-NL",
+      "isPartOf": { "@type": "WebSite", "name": SITE.name, "url": SITE.url },
+    })} />
+  </Fragment>
+
+  <!-- Paginaheader -->
+  <div class="border-b border-gray-200 bg-ink-900 text-white">
+    <Container class="py-10 md:py-14">
+      <nav class="text-xs text-white/70 mb-3 flex items-center gap-1.5" aria-label="Broodkruimelpad">
+        <a href="/" class="text-white/70 hover:text-white transition-colors">Home</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-white">{page.data.title}</span>
+      </nav>
+      <h1 class="text-2xl md:text-4xl font-bold leading-tight">{page.data.title}</h1>
+      {description && (
+        <p class="mt-2 text-white/70 text-sm max-w-xl">{description}</p>
+      )}
+    </Container>
+  </div>
+
+  <Container class="py-10 md:py-14">
+    <div class="grid lg:grid-cols-[1fr,300px] gap-12">
+
+      <!-- Hoofdinhoud -->
+      <article>
+        {relatedBedrijven.length > 0 && (
+          <div class="mb-12 pb-10 border-b border-gray-200">
+            <h2 class="text-xl font-bold mb-6 text-ink-900">
+              Lokale bedrijven: {page.data.title.replace(new RegExp(` ${cityDisplayP.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`), "")}
+            </h2>
+            <div class="grid sm:grid-cols-2 gap-4">
+              {relatedBedrijven.map((b) => (
+                <a href={`/${slugify(b.title)}/`} class="rounded border border-gray-200 bg-white p-4 flex flex-col gap-2 hover:border-accent-400 transition-colors no-underline">
+                  <div class="font-semibold text-sm leading-snug text-ink-900">{b.title}</div>
+                  {b.category && <span class="text-xs text-white bg-accent-600 rounded px-2 py-0.5 self-start">{b.category}</span>}
+                  <address class="not-italic text-xs text-ink-500 space-y-0.5">
+                    {b.street && <div>{b.street}, {b.city}</div>}
+                    {b.phone && <div>{b.phone}</div>}
+                  </address>
+                  <span class="text-xs font-medium text-accent-600 mt-1">Meer informatie over {b.title} &rarr;</span>
+                </a>
+              ))}
+            </div>
+            <a href="/bedrijvengids/" class="mt-6 inline-flex items-center text-sm font-medium text-accent-600 hover:underline">
+              Bekijk alle bedrijven in de gids &rarr;
+            </a>
+          </div>
+        )}
+
+        <div class="prose-page max-w-none prose-headings:text-ink-900 prose-a:text-accent-600">
+          <Content />
+        </div>
+
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="space-y-6">
+
+        <div class="rounded bg-ink-900 text-white p-6">
+          <p class="text-xs font-bold uppercase tracking-wider text-white/50 mb-2">Redactie</p>
+          <h3 class="font-bold text-lg">Tip de redactie</h3>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            Weet u meer over dit onderwerp of heeft u nieuws uit de regio?
+          </p>
+          <a href="/contact/" class="mt-4 inline-flex h-9 items-center rounded bg-accent-600 hover:bg-accent-500 px-5 text-xs font-bold text-white transition-colors">
+            Stuur een tip
+          </a>
+        </div>
+
+        <div class="rounded border border-gray-200 bg-white p-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-ink-900 mb-4">Snel naar</h3>
+          <ul class="space-y-1">
+            {[
+              { label: "Bedrijvengids", href: "/bedrijvengids/" },
+              { label: "Weer", href: `/weer-${cityP}/` },
+            ].map(({ label, href }) => (
+              <li>
+                <a href={href} class="flex items-center gap-2 text-sm text-ink-600 hover:text-accent-600 py-1 transition-colors">
+                  <span class="h-1 w-1 rounded-full bg-accent-500 flex-shrink-0" aria-hidden="true"></span>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+
+      </aside>
+    </div>
+  </Container>
+</BaseLayout>

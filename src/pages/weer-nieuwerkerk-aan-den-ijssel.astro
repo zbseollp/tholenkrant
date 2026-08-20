@@ -1,0 +1,85 @@
+﻿---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import WeatherWidget from "@components/WeatherWidget.astro";
+import { SITE } from "@lib/site";
+
+const title = "Weer Tholen | Bekijk de Buienradar in Tholen";
+const description = "Altijd weten wat voor weer het is in Tholen? Bekijk de weersverwachting en buienradar online bij ons in de krant.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="jsonld">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Weer Tholen",
+      "description": description,
+      "url": `${SITE.url}/weer-tholen/`,
+      "inLanguage": "nl-NL",
+      "isPartOf": { "@type": "WebSite", "name": SITE.name, "url": SITE.url },
+    })} />
+  </Fragment>
+
+  <div class="border-b border-[color:var(--border)] bg-ink-900 text-white">
+    <Container class="py-10 md:py-14">
+      <nav class="text-xs text-white/50 mb-3 flex items-center gap-1.5" aria-label="Broodkruimelpad">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-white">Weer Tholen</span>
+      </nav>
+      <h1 class="text-2xl md:text-4xl font-display font-bold leading-tight">Weer Tholen</h1>
+      <p class="mt-2 text-white/70 text-sm max-w-xl">Altijd weten wat voor weer het is in Tholen? Bekijk de weersverwachting en buienradar online bij ons in de krant.</p>
+    </Container>
+  </div>
+
+  <Container class="section-pad">
+    <div class="grid lg:grid-cols-[1fr,300px] gap-12">
+
+      <article>
+        <WeatherWidget />
+
+        <div class="mt-10 prose-page">
+          <h2>Buienradar Tholen</h2>
+          <p>Bekijk het weer online in Tholen op dit moment. Ga voorbereid op pad door van tevoren te kijken naar de weersverwachting in Tholen.</p>
+          <p>Laat je niet meer verrassen door een hevige regenbui of harde wind. Zorg dat je het weerbericht hebt bekeken voordat je de deur uit gaat.</p>
+          <h2>Weer Tholen deze week</h2>
+          <p>Bekijk het weer in Tholen voor deze week. Klik op de balk om het weersverwachting in Tholen voor de komende 7 dagen te zien.</p>
+          <p>Het weer voor de komende 14 dagen is namelijk veel moeilijker in te schatten. 7 dagen is veel nauwkeuriger te bepalen door de metereologen.</p>
+          <h2>Weersverwachting Tholen</h2>
+          <p>Het weer van nu in Tholen, online te bekijken. Klik op de weerbalk hierboven om naar de externe weer pagina te gaan waar je het buitenalarm van Tholen en het weer per uur in Tholen kunt zien.</p>
+          <p>Er zijn veel manieren om het weer in Tholen te kunnen bekijken. Een manier is via weerplaza.nl. Een andere manier is via weeronline.nl.</p>
+          <h2>Tips voor het aflezen van het weerbericht in Tholen</h2>
+          <p>Het weer is lastig te voorspellen in Nederland en in Tholen. Het kan spontaan flink gaan regenen of onweren, sneeuw in april is niet meer vreemd.</p>
+          <h2>Stel je vraag aan ons</h2>
+          <p>Heb je een vraag aan ons of wil je een opmerking plaatsen? Stuur ons dan een bericht via het contactformulier.</p>
+        </div>
+      </article>
+
+      <aside class="space-y-6">
+        <div class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[color:var(--text)] mb-4">Snel naar</h3>
+          <ul class="space-y-1">
+            {[
+              { label: "Vacatures", href: "/vacatures-tholen/" },
+              { label: "112 Meldingen", href: "/112-tholen/" },
+              { label: "Bekendmakingen", href: "/bekendmakingen/" },
+              { label: "Kappers", href: "/kapper-tholen/" },
+              { label: "Restaurants", href: "/restaurant-tholen/" },
+              { label: "Bedrijvengids", href: "/bedrijvengids/" },
+            ].map(({ label, href }) => (
+              <li>
+                <a href={href} class="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-brand-700 dark:hover:text-brand-400 py-1 transition-colors">
+                  <span class="h-1 w-1 rounded-full bg-brand-400 flex-shrink-0" aria-hidden="true"></span>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </aside>
+
+    </div>
+  </Container>
+</BaseLayout>

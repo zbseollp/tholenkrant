@@ -1,0 +1,81 @@
+---
+import { SITE } from "@lib/site";
+---
+
+<div
+  data-consent-banner
+  hidden
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="wh-consent-title"
+  aria-describedby="wh-consent-desc"
+  class="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:max-w-md z-[60]"
+>
+  <div class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl p-5 md:p-6">
+    <h2 id="wh-consent-title" class="font-display text-lg font-semibold text-[color:var(--text)]">
+      Cookies & privacy
+    </h2>
+    <p id="wh-consent-desc" class="mt-2 text-sm text-[color:var(--text-muted)]">
+      We gebruiken Google Analytics om anoniem bij te houden hoe deze site bezocht wordt. Geef je toestemming, of weiger zonder gevolgen.
+    </p>
+    <div class="mt-5 flex flex-col sm:flex-row gap-2">
+      <button
+        type="button"
+        data-consent="denied"
+        class="flex-1 inline-flex items-center justify-center h-10 rounded-full border border-[color:var(--border-strong)] hover:bg-[color:var(--surface-muted)] px-4 text-sm font-medium text-[color:var(--text)] transition-colors"
+      >
+        Weigeren
+      </button>
+      <button
+        type="button"
+        data-consent="granted"
+        class="flex-1 inline-flex items-center justify-center h-10 rounded-full bg-[color:var(--primary)] hover:bg-[color:var(--primary-hover)] px-4 text-sm font-medium text-[color:var(--bg)] transition-colors"
+      >
+        Accepteren
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const KEY = "wh-consent";
+    function open(opts) {
+      const el = document.querySelector("[data-consent-banner]");
+      if (!el) return;
+      el.removeAttribute("hidden");
+    }
+    function close() {
+      const el = document.querySelector("[data-consent-banner]");
+      if (!el) return;
+      el.setAttribute("hidden", "");
+    }
+    function setConsent(value) {
+      try { localStorage.setItem(KEY, value); } catch (_) {}
+      close();
+      if (value === "granted") {
+        window.dispatchEvent(new CustomEvent("consent:granted"));
+      } else if (value === "denied") {
+        window.dispatchEvent(new CustomEvent("consent:denied"));
+      }
+    }
+    function setupConsent() {
+      const stored = (() => {
+        try { return localStorage.getItem(KEY); } catch (_) { return null; }
+      })();
+      /* banner stays hidden by default; opens only via footer link */
+      document.querySelectorAll("[data-consent]").forEach((btn) => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = "1";
+        btn.addEventListener("click", () => { setConsent(btn.getAttribute("data-consent")); });
+      });
+      document.querySelectorAll("[data-open-consent]").forEach((btn) => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = "1";
+        btn.addEventListener("click", (e) => { e.preventDefault(); open(); });
+      });
+    }
+    setupConsent();
+    document.addEventListener("astro:after-swap", setupConsent);
+  })();
+</script>

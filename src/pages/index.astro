@@ -1,0 +1,245 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import BlogPostCard from "@components/BlogPostCard.astro";
+import { SITE } from "@lib/site";
+import { getAllPosts, postUrl, formatDateNL } from "@lib/posts";
+
+const allPosts = await getAllPosts();
+const recentPosts = allPosts.slice(0, 6).map((p) => ({ slug: p.id, title: p.data.title }));
+const heroNews = allPosts.slice(0, 6);
+const uitgelichtPosts = allPosts.slice(6, 15);
+const cityDisplay = SITE.name.replace(/\s*Krant\.?$/i, "").replace(/\s*krant\.?$/i, "").trim();
+
+// All possible business category tiles — filtered to only those with a matching content page
+const ALL_BEDRIJF_CATS = [
+  { label: "Restaurants",    slug: "restaurant",      svg: "M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" },
+  { label: "Hotels & B&B",  slug: "hotel",           svg: "M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z" },
+  { label: "Kappers",        slug: "kapper",          svg: "M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm0 12c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z" },
+  { label: "Makelaars",      slug: "makelaar",        svg: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" },
+  { label: "Tandartsen",     slug: "tandarts",        svg: "M12 2C9.5 2 7 4 7 6.5c0 1.74.87 3.27 2.18 4.19C9.07 11.27 9 11.88 9 12.5c0 2.5 1.5 4.5 3 4.5s3-2 3-4.5c0-.62-.07-1.23-.18-1.81C16.13 9.77 17 8.24 17 6.5 17 4 14.5 2 12 2z" },
+  { label: "Fysiotherapie",  slug: "fysio",           svg: "M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" },
+  { label: "Rijschool",      slug: "rijschool",       svg: "M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" },
+  { label: "Kinderopvang",   slug: "kinderopvang",    svg: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" },
+  { label: "Fotograaf",      slug: "fotograaf",       svg: "M12 15.2c-1.77 0-3.2-1.43-3.2-3.2 0-1.77 1.43-3.2 3.2-3.2 1.77 0 3.2 1.43 3.2 3.2 0 1.77-1.43 3.2-3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" },
+  { label: "Notaris",        slug: "notaris",         svg: "M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" },
+  { label: "Snackbar",       slug: "snackbar",        svg: "M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-2.6-1.06-4.41-2.91-6.14-1.69-1.57-4.68-2.79-6.12-2.85C4.71 5.88 1 7.84 1 14.99h15.03z" },
+  { label: "Massage",        slug: "massage",         svg: "M21 12.5c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9 9-4.03 9-9zm-2 0c0 3.86-3.14 7-7 7s-7-3.14-7-7 3.14-7 7-7 7 3.14 7 7zm-7-3.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z" },
+  { label: "Sportschool",    slug: "sportschool",     svg: "M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29l-1.43-1.43z" },
+  { label: "Camping",        slug: "camping",         svg: "M12.5 3.5L2 21h21L12.5 3.5zM13 17h-1v-1h1v1zm0-3h-1v-4h1v4z" },
+  { label: "Bed & Breakfast",slug: "bed-and-breakfast", svg: "M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z" },
+  { label: "Bowlen",         slug: "bowlen",          svg: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm5 4c.83 0 1.5-.67 1.5-1.5S15.83 8 15 8s-1.5.67-1.5 1.5S14.17 11 15 11z" },
+  { label: "Pedicure",       slug: "pedicure",        svg: "M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" },
+  { label: "Woonwinkel",     slug: "woonwinkel",      svg: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" },
+  { label: "Funda",          slug: "funda",           svg: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" },
+];
+
+const pageFiles = import.meta.glob('../content/pages/*.md');
+const existingSlugs = new Set(Object.keys(pageFiles).map(f => f.split('/').pop()!.replace('.md', '')));
+const bedrijfCategorieen = ALL_BEDRIJF_CATS
+  .filter(cat => existingSlugs.has(`${cat.slug}-${SITE.citySlug}`))
+  .map(cat => ({ label: cat.label, href: `/${cat.slug}-${SITE.citySlug}/`, svg: cat.svg }));
+---
+
+<BaseLayout title={`${SITE.name} | Lokaal nieuws`} description={SITE.description} recentPosts={recentPosts}>
+
+  {/* HERO */}
+  <section class="relative bg-ink-900 pt-16 pb-14 md:pt-24 md:pb-20 overflow-hidden">
+    {/* Achtergrondpatroon */}
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 28px 28px;"></div>
+    {/* Rode accent balk rechtsonder */}
+    <div class="absolute bottom-0 right-0 w-64 h-1 bg-accent-600"></div>
+    <Container class="relative z-10">
+      <div class="hero-grid grid gap-10 items-start">
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-0.5 bg-accent-500"></div>
+            <p class="text-accent-400 text-[10px] font-bold uppercase tracking-widest">Lokaal nieuws</p>
+          </div>
+          <h1 class="text-4xl md:text-6xl font-display font-bold text-white leading-tight">
+            {SITE.name}
+          </h1>
+          <p class="mt-5 text-white/85 text-base leading-relaxed border-l-2 border-accent-600 pl-4">{SITE.tagline}</p>
+          <p class="mt-4 text-white/70 text-sm leading-relaxed">
+            Wij brengen je dagelijks het laatste nieuws uit {cityDisplay} en de omliggende gemeenten. Van lokale politiek en evenementen tot sport en bijzondere verhalen uit de buurt. Altijd actueel, altijd dichtbij.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="/blog/" class="inline-flex h-11 items-center rounded px-6 text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors">Lees het nieuws</a>
+            <a href="/bedrijvengids/" class="inline-flex h-11 items-center rounded px-6 text-sm font-bold text-white/90 border border-white/25 hover:bg-white/10 transition-colors">Bedrijvengids</a>
+          </div>
+          {allPosts.length > 0 && (
+            <p class="mt-6 text-white/30 text-xs">{allPosts.length} artikelen gepubliceerd</p>
+          )}
+        </div>
+        <aside class="hidden md:block bg-white/5 rounded-lg p-5 border border-white/10">
+          <p class="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-4">Laatste berichten</p>
+          <ul class="space-y-4">
+            {heroNews.map((post) => (
+              <li class="border-b border-white/10 pb-4 last:border-0 last:pb-0">
+                <a href={postUrl(post)} class="text-white/80 hover:text-white text-sm leading-snug line-clamp-2 block transition-colors no-underline">
+                  {post.data.title}
+                </a>
+                <p class="text-white/30 text-xs mt-1">{formatDateNL(post.data.date)}</p>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </div>
+    </Container>
+  </section>
+
+  {/* SECTIE — Weer + snelle links */}
+  <section class="py-10 md:py-12 bg-white border-t border-gray-100">
+    <Container>
+      <h2 class="text-3xl font-bold text-ink-900 mb-2">Weer in {cityDisplay}</h2>
+      <p class="text-sm text-ink-600 mb-6">Bekijk het weer in {cityDisplay} bij ons online. Zie het weerbericht voor de komende uren en de komende week.</p>
+
+      <div class="bg-ink-950 rounded text-white overflow-x-auto mb-4">
+        <div class="flex items-center min-w-max">
+          <div class="flex-shrink-0 px-5 py-4 border-r border-white/10 min-w-40">
+            <p class="text-xs font-black uppercase tracking-widest leading-tight">{cityDisplay}</p>
+            <p class="text-xs text-white/50 mt-1">Weer</p>
+          </div>
+          <div class="flex-shrink-0 flex items-center gap-4 px-6 py-4 border-r border-white/10">
+            <span class="text-5xl" id="weer-icon">☁️</span>
+            <div>
+              <div class="text-3xl font-bold" id="weer-temp">--°C</div>
+              <div class="text-sm text-white/60" id="weer-desc">Laden...</div>
+            </div>
+          </div>
+          <div class="flex" id="weer-days">
+            {["--","--","--","--","--","--","--"].map((_, i) => (
+              <div class="flex-shrink-0 text-center px-4 py-4 border-r border-white/10 last:border-0 min-w-20" data-day-index={i}>
+                <div class="text-xs text-white/60 mb-1">--</div>
+                <div class="text-2xl my-1">--</div>
+                <div class="text-xs text-white/70">--°&nbsp;--°</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 sm:grid-cols-5 gap-0.5">
+        {[
+                  { svg: "M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z", label: "Bedrijvengids", href: "/bedrijvengids/" },
+          { svg: "M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z", label: "Restaurants", href: `/restaurant-${SITE.citySlug}/` },
+          { svg: "M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z", label: "Accommodatie", href: `/hotel-${SITE.citySlug}/` },
+          { svg: "M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm0 12c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z", label: "Kappers", href: `/kapper-${SITE.citySlug}/` },
+          { svg: "M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z", label: "Makelaar", href: `/makelaar-${SITE.citySlug}/` },
+        ].map(({ svg, label, href }) => (
+          <a href={href} class="bg-ink-900 hover:bg-ink-800 transition-colors flex flex-col items-center justify-center py-6 px-2 group">
+            <svg class="w-8 h-8 text-white mb-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d={svg}/></svg>
+            <span class="text-xs font-black uppercase tracking-wide text-white text-center leading-tight">{label}</span>
+          </a>
+        ))}
+      </div>
+    </Container>
+  </section>
+
+  {/* SECTIE — Bedrijvencategorieën */}
+  <section class="py-10 md:py-12 bg-white border-t border-gray-100">
+    <Container>
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-ink-900">Bedrijven in {cityDisplay}</h2>
+          <p class="text-sm text-ink-500 mt-1">Vind het juiste bedrijf bij jou in de buurt</p>
+        </div>
+        <a href="/bedrijvengids/" class="text-sm font-semibold text-accent-600 hover:underline hidden sm:block">Alle bedrijven &rarr;</a>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {bedrijfCategorieen.map(({ label, href, svg }) => (
+          <a href={href} class="group flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:border-accent-200 hover:bg-accent-50 transition-colors">
+            <div class="flex-shrink-0 w-9 h-9 rounded bg-ink-900 group-hover:bg-accent-600 flex items-center justify-center transition-colors">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d={svg}/></svg>
+            </div>
+            <span class="text-sm font-semibold text-ink-800 group-hover:text-accent-700 leading-tight transition-colors">{label}</span>
+          </a>
+        ))}
+      </div>
+      <div class="mt-4 sm:hidden text-center">
+        <a href="/bedrijvengids/" class="text-sm font-semibold text-accent-600 hover:underline">Alle bedrijven bekijken &rarr;</a>
+      </div>
+    </Container>
+  </section>
+
+{/* SECTIE — Uitgelicht */}
+  <section class="py-10 md:py-12 bg-gray-50 border-t border-gray-100">
+    <Container>
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-ink-900">Uitgelicht</h2>
+          <p class="text-sm text-ink-500 mt-1">Meer nieuws uit de regio</p>
+        </div>
+        <a href="/blog/" class="text-sm font-semibold text-accent-600 hover:underline">Alles bekijken &rarr;</a>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {uitgelichtPosts.map((post, i) => (
+          <BlogPostCard
+            href={postUrl(post)}
+            title={post.data.title}
+            excerpt={post.data.metaDescription}
+            date={post.data.date}
+            image={post.data.featuredImage}
+            category={post.data.categories?.[0]}
+            priority={i === 0}
+          />
+        ))}
+      </div>
+    </Container>
+  </section>
+
+  {/* SECTIE — Contact CTA */}
+  <section class="relative py-20 md:py-28 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px);"></div>
+    <Container class="relative z-10 text-center">
+      <h2 class="text-4xl font-bold text-white mb-4">Stel een vraag aan ons</h2>
+      <p class="text-white/70 max-w-2xl mx-auto leading-relaxed mb-3">
+        Heb je een vraag aan ons of wil je een opmerking achterlaten? Dan kan dit via het contactformulier via onderstaande button.
+      </p>
+      <p class="text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+        Is je iets bijzonders opgevallen in {cityDisplay} dat aandacht verdient? Neem dan ook zeker contact op en misschien publiceren we het wel op onze site!
+      </p>
+      <a href="/contact/" class="inline-flex h-12 items-center rounded px-8 text-base font-bold text-white bg-accent-600 hover:bg-accent-500 transition-colors">
+        Contact opnemen
+      </a>
+    </Container>
+  </section>
+
+</BaseLayout>
+
+<style>
+  @media (min-width: 768px) {
+    .hero-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  const WMO: Record<number, [string, string]> = {
+    0:["☀️","Helder"],1:["🌤️","Overwegend helder"],2:["⛅","Gedeeltelijk bewolkt"],
+    3:["☁️","Bewolkt"],45:["🌫️","Mist"],51:["🌦️","Motregen"],
+    61:["🌧️","Lichte regen"],63:["🌧️","Regen"],71:["🌨️","Sneeuw"],
+    80:["🌦️","Buien"],95:["⛈️","Onweer"],
+  };
+  const DAYS = ["Zo","Ma","Di","Wo","Do","Vr","Za"];
+  async function loadWeer() {
+    try {
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=51.9797&longitude=4.6167&current=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&forecast_days=7");
+      const d = await r.json();
+      const [icon, desc] = WMO[d.current.weathercode as number] ?? ["🌡️","Onbekend"];
+      document.getElementById("weer-temp")!.textContent = `${Math.round(d.current.temperature_2m)}°C`;
+      document.getElementById("weer-icon")!.textContent = icon;
+      document.getElementById("weer-desc")!.textContent = desc;
+      document.querySelectorAll("[data-day-index]").forEach((el, i) => {
+        if (!d.daily.time[i]) return;
+        const [di] = WMO[d.daily.weathercode[i] as number] ?? ["🌡️",""];
+        el.children[0].textContent = DAYS[new Date(d.daily.time[i]).getDay()];
+        el.children[1].textContent = di;
+        el.children[2].textContent = `${Math.round(d.daily.temperature_2m_max[i])}°  ${Math.round(d.daily.temperature_2m_min[i])}°`;
+      });
+    } catch { /**/ }
+  }
+  loadWeer();
+  document.addEventListener("astro:after-swap", loadWeer);
+</script>

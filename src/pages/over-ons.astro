@@ -1,0 +1,50 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+
+const title = "Over ons | tholenkrant.nl";
+const description =
+  "Welkom bij de tholenkrant.nl dé website voor al het nieuws uit gemeente Tholen. Bekijk onze funda pagina en de laatste 112 meldingen.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Container as="section" class="section-pad">
+    <article class="prose-nieuws">
+      <p class="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-400">
+        Over ons
+      </p>
+      <h1>tholenkrant.nl - voor en door de regio</h1>
+
+      <p class="text-lg text-[color:var(--text-muted)]">
+        tholenkrant.nl is uw onafhankelijke lokale nieuwsbron voor
+        Tholen en de omliggende kernen in de gemeente Krimpenerwaard.
+        Wij geloven dat lokaal nieuws ertoe doet: het verbindt buurtbewoners,
+        informeert over wat er speelt en geeft stem aan de verhalen van
+        gewone mensen.
+      </p>
+
+      <h2>Wat we doen</h2>
+      <p>
+        We volgen het nieuws op de voet: de gemeenteraad, plaatselijke
+        sportclubs, evenementen op het dorpsplein en ontwikkelingen in de
+        wijk. Van een nieuwe speeltuin tot een discussie in de gemeenteraad -
+        als het Tholen raakt, schrijven wij erover.
+      </p>
+
+      <h2>Onze aanpak</h2>
+      <p>
+        Wij staan voor betrouwbare en eerlijke berichtgeving. We checken onze
+        bronnen, horen beide kanten van een verhaal en schrijven begrijpelijk
+        voor iedereen. Geen clickbait, geen sensatie - gewoon goed lokaal
+        nieuws.
+      </p>
+
+      <h2>Tip de redactie</h2>
+      <p>
+        Hebt u nieuws uit de buurt dat we zeker niet mogen missen? Een
+        evenement, een incident, een bijzonder verhaal? Neem dan contact op
+        via onze <a href="/contact/">contactpagina</a>. We horen graag van u.
+      </p>
+    </article>
+  </Container>
+</BaseLayout>

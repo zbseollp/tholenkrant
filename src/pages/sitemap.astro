@@ -1,0 +1,267 @@
+﻿---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import { SITE } from "@lib/site";
+import { getAllPosts, postUrl } from "@lib/posts";
+import bedrijven from "@data/bedrijvengids.json";
+import { slugify } from "@lib/slugify";
+import { getCollection } from "astro:content";
+
+const cityPages = await getCollection("pages");
+const citySlugsSet = new Set(cityPages.map((p) => p.id.replace(/\.md$/, "")));
+const city = SITE.citySlug;
+function cityLinks(defs: Array<{ slug: string; label: string }>) {
+  return defs
+    .filter((d) => citySlugsSet.has(`${d.slug}-${city}`))
+    .map((d) => ({ href: `/${d.slug}-${city}/`, label: d.label }));
+}
+
+const allPosts = await getAllPosts();
+const totalPosts = allPosts.length;
+
+const SITE_CAT_KW = [
+  { label: "Kapper",         kw: ["kapper","haircreation","hairstyling","hairstyle","barbershop","barber","kappers","hair & nails","hair nails"] },
+  { label: "Restaurant",     kw: ["restaurant","eetcafe","pizzeria","brasserie","bistro","trattoria"] },
+  { label: "Snackbar",       kw: ["snackbar","cafetaria","frituur"] },
+  { label: "Camping",        kw: ["camping"] },
+  { label: "Hotel",          kw: ["hotel","motel"] },
+  { label: "Bed & Breakfast",kw: ["bed and breakfast","bed & breakfast","b&b"] },
+  { label: "Fotograaf",      kw: ["photography","fotografie","fotograaf","photo"] },
+  { label: "Tandarts",       kw: ["tandarts","dental"] },
+  { label: "Fysiotherapeut", kw: ["fysio"] },
+  { label: "Massage",        kw: ["massage","schoonheidssalon","beauty"] },
+  { label: "Sportschool",    kw: ["sportschool","fitness","gym","crossfit"] },
+  { label: "Kinderopvang",   kw: ["kinderopvang","kinderdagverblijf","opvang"] },
+  { label: "Makelaar",       kw: ["makelaar"] },
+  { label: "Notaris",        kw: ["notaris"] },
+  { label: "Rijschool",      kw: ["rijschool"] },
+  { label: "Pedicure",       kw: ["pedicure"] },
+  { label: "Woonwinkel",     kw: ["woonwinkel","interieur","meubel"] },
+  { label: "Bowlen",         kw: ["bowlen","bowling"] },
+];
+
+function inferBedrijfLabel(b: { title: string; category?: string }): string {
+  if (b.category) return b.category;
+  const h = b.title.toLowerCase();
+  return SITE_CAT_KW.find((c) => c.kw.some((k) => h.includes(k)))?.label ?? "Overig";
+}
+
+const bedrijfGrouped: Record<string, typeof bedrijven> = {};
+for (const b of bedrijven) {
+  const cat = inferBedrijfLabel(b);
+  if (!bedrijfGrouped[cat]) bedrijfGrouped[cat] = [];
+  bedrijfGrouped[cat].push(b);
+}
+const bedrijfCatsSorted = Object.keys(bedrijfGrouped).sort((a, b) => a === "Overig" ? 1 : b === "Overig" ? -1 : a.localeCompare(b));
+
+const postsByCategory = SITE.categories
+  .map((cat) => ({
+    ...cat,
+    posts: allPosts.filter((p) => p.data.categories.includes(cat.name)),
+  }))
+  .filter((c) => c.posts.length > 0)
+  .sort((a, b) => b.posts.length - a.posts.length);
+
+const pageGroups = [
+  {
+    label: "Nieuws & Info",
+    pages: [
+      { href: "/", label: "Home" },
+      { href: "/blog/", label: "Alle artikelen" },
+      { href: "/bekendmakingen/", label: "Bekendmakingen" },
+      ...cityLinks([
+        { slug: "112", label: "112 Meldingen" },
+        { slug: "vacatures", label: "Vacatures" },
+        { slug: "weer", label: "Weer" },
+        { slug: "overlijdensberichten", label: "Overlijdensberichten" },
+      ]),
+    ],
+  },
+  {
+    label: "Horeca & Verblijf",
+    pages: cityLinks([
+      { slug: "restaurant", label: "Restaurants" },
+      { slug: "hotel", label: "Hotels" },
+      { slug: "bed-and-breakfast", label: "Bed & Breakfast" },
+      { slug: "snackbar", label: "Snackbars" },
+      { slug: "camping", label: "Camping" },
+    ]),
+  },
+  {
+    label: "Zorg & Gezondheid",
+    pages: cityLinks([
+      { slug: "tandarts", label: "Tandarts" },
+      { slug: "fysio", label: "Fysiotherapeut" },
+      { slug: "massage", label: "Massage" },
+      { slug: "pedicure", label: "Pedicure" },
+      { slug: "gebedstijden", label: "Gebedstijden" },
+    ]),
+  },
+  {
+    label: "Wonen & Diensten",
+    pages: [
+      { href: "/bedrijvengids/", label: "Bedrijvengids" },
+      ...cityLinks([
+        { slug: "makelaar", label: "Makelaar" },
+        { slug: "notaris", label: "Notaris" },
+        { slug: "woonwinkel", label: "Woonwinkel" },
+        { slug: "schoorsteenveger", label: "Schoorsteenveger" },
+        { slug: "tuinmeubelen", label: "Tuinmeubelen" },
+      ]),
+    ],
+  },
+  {
+    label: "Onderwijs & Opvang",
+    pages: cityLinks([
+      { slug: "kinderopvang", label: "Kinderopvang" },
+      { slug: "rijschool", label: "Rijschool" },
+      { slug: "fotograaf", label: "Fotograaf" },
+    ]),
+  },
+  {
+    label: "Vrije tijd",
+    pages: cityLinks([
+      { slug: "sportschool", label: "Sportschool" },
+      { slug: "wandelen", label: "Wandelen" },
+      { slug: "bowlen", label: "Bowlen" },
+      { slug: "kermis", label: "Kermis" },
+      { slug: "koningsdag", label: "Koningsdag" },
+      { slug: "rommelmarkt", label: "Rommelmarkt" },
+      { slug: "activiteiten", label: "Activiteiten" },
+    ]),
+  },
+  {
+    label: "Uiterlijk",
+    pages: cityLinks([{ slug: "kapper", label: "Kappers" }]),
+  },
+  {
+    label: "Over ons",
+    pages: [
+      { href: "/contact/", label: "Contact" },
+      { href: "/sitemap/", label: "Sitemap" },
+    ],
+  },
+].filter((g) => g.pages.length > 0);
+---
+
+<BaseLayout title={`Sitemap | ${SITE.name}`} description={`Overzicht van alle pagina's op ${SITE.domain}.`}>
+
+  <div class="bg-white border-b border-gray-200">
+    <Container class="py-8">
+      <nav class="text-xs text-ink-400 mb-3 flex items-center gap-1.5">
+        <a href="/" class="hover:text-ink-900 transition-colors">Home</a>
+        <span>/</span>
+        <span class="text-ink-900">Sitemap</span>
+      </nav>
+      <h1 class="text-2xl font-bold text-ink-900">Sitemap</h1>
+      <p class="mt-1 text-sm text-ink-500">{totalPosts} artikelen · {pageGroups.reduce((s, g) => s + g.pages.length, 0)} pagina's</p>
+    </Container>
+  </div>
+
+  <Container class="py-10 md:py-14">
+
+    <!-- Pagina directory — compact tabel-stijl -->
+    <section class="mb-12">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-accent-600 mb-6">Alle pagina's</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200 border border-gray-200 rounded-xl overflow-hidden">
+        {pageGroups.map((group) => (
+          <div class="bg-white p-5">
+            <p class="text-[10px] font-black uppercase tracking-widest text-ink-400 mb-3">{group.label}</p>
+            <ul class="space-y-1.5">
+              {group.pages.map(({ href, label }) => (
+                <li>
+                  <a href={href} class="text-sm text-ink-700 hover:text-accent-600 transition-colors flex items-center gap-1.5">
+                    <span class="h-px w-2 bg-accent-500 flex-shrink-0"></span>
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Bedrijven per (inferred) categorie -->
+    {bedrijven.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-accent-600 mb-6">Bedrijven ({bedrijven.length})</h2>
+        <div class="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden">
+          {bedrijfCatsSorted.map((cat) => (
+            <details class="group bg-white">
+              <summary class="flex items-center justify-between px-6 py-4 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+                <span class="flex items-center gap-3">
+                  <span class="h-2 w-2 rounded-full bg-accent-600 flex-shrink-0"></span>
+                  <span class="font-semibold text-sm text-ink-900">{cat}</span>
+                </span>
+                <span class="text-xs text-ink-400">{bedrijfGrouped[cat].length} bedrijven</span>
+              </summary>
+              <ul class="px-6 pb-5 pt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 border-t border-gray-100">
+                {bedrijfGrouped[cat].map((b) => (
+                  <li>
+                    <a href={`/${slugify(b.title)}/`} class="text-xs text-ink-600 hover:text-accent-600 hover:underline underline-offset-2 transition-colors leading-snug line-clamp-2">
+                      {b.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Alle artikelen -->
+    <section>
+      <h2 class="text-sm font-bold uppercase tracking-widest text-accent-600 mb-6">Artikelen ({totalPosts})</h2>
+      <div class="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden">
+        {postsByCategory.length > 0
+          ? postsByCategory.map((cat) => {
+              const sortedPosts = [...cat.posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+              return (
+                <details class="group bg-white">
+                  <summary class="flex items-center justify-between px-6 py-4 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+                    <span class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-accent-600 flex-shrink-0"></span>
+                      <span class="font-semibold text-sm text-ink-900">{cat.name}</span>
+                    </span>
+                    <span class="text-xs text-ink-400">{cat.posts.length} artikelen</span>
+                  </summary>
+                  <ul class="px-6 pb-5 pt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 border-t border-gray-100">
+                    {sortedPosts.map((post) => (
+                      <li>
+                        <a href={postUrl(post)} class="text-xs text-ink-600 hover:text-accent-600 hover:underline underline-offset-2 transition-colors leading-snug line-clamp-2">
+                          {post.data.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              );
+            })
+          : (
+            <details class="group bg-white" open>
+              <summary class="flex items-center justify-between px-6 py-4 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+                <span class="flex items-center gap-3">
+                  <span class="h-2 w-2 rounded-full bg-accent-600 flex-shrink-0"></span>
+                  <span class="font-semibold text-sm text-ink-900">Alle artikelen</span>
+                </span>
+                <span class="text-xs text-ink-400">{totalPosts} artikelen</span>
+              </summary>
+              <ul class="px-6 pb-5 pt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 border-t border-gray-100">
+                {allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((post) => (
+                  <li>
+                    <a href={postUrl(post)} class="text-xs text-ink-600 hover:text-accent-600 hover:underline underline-offset-2 transition-colors leading-snug line-clamp-2">
+                      {post.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )
+        }
+      </div>
+    </section>
+
+  </Container>
+</BaseLayout>

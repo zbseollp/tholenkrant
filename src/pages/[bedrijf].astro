@@ -1,0 +1,212 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+import { SITE } from "@lib/site";
+import bedrijven from "@data/bedrijvengids.json";
+import { slugify } from "@lib/slugify";
+
+export function getStaticPaths() {
+  return bedrijven.map((b) => ({
+    params: { bedrijf: slugify(b.title) },
+    props: { bedrijf: b },
+  }));
+}
+
+const { bedrijf: b } = Astro.props;
+
+const CATEGORY_KEYWORDS: { slug: string; label: string; plural: string; keywords: string[] }[] = [
+  { slug: "kapper",            label: "Kapper",         plural: "kappers",              keywords: ["kapper", "haircreation", "hairstyling", "hairstyle", "hairsalon", "barbershop", "barber", "kappers", "haar salon", "hair & nails", "hair nails"] },
+  { slug: "restaurant",        label: "Restaurant",      plural: "restaurants",          keywords: ["restaurant", "eetcafe", "eet cafe", "pizzeria", "brasserie", "bistro", "trattoria"] },
+  { slug: "snackbar",          label: "Snackbar",        plural: "snackbars",            keywords: ["snackbar", "snack bar", "cafetaria", "frituur"] },
+  { slug: "camping",           label: "Camping",         plural: "campings",             keywords: ["camping", "campsite"] },
+  { slug: "hotel",             label: "Hotel",           plural: "hotels",               keywords: ["hotel", "motel", "lodge"] },
+  { slug: "bed-and-breakfast", label: "Bed & Breakfast", plural: "bed & breakfasts",     keywords: ["bed and breakfast", "bed & breakfast", "b&b"] },
+  { slug: "fotograaf",         label: "Fotograaf",       plural: "fotografen",           keywords: ["photography", "fotografie", "fotograaf", "photo"] },
+  { slug: "tandarts",          label: "Tandarts",        plural: "tandartsen",           keywords: ["tandarts", "dental", "tandheelkunde"] },
+  { slug: "fysio",             label: "Fysiotherapeut",  plural: "fysiotherapeuten",     keywords: ["fysio", "fysiotherapie"] },
+  { slug: "massage",           label: "Massage",         plural: "massagesalons",        keywords: ["massage", "schoonheidssalon", "schoonheid", "beauty"] },
+  { slug: "sportschool",       label: "Sportschool",     plural: "sportscholen",         keywords: ["sportschool", "fitness", "gym", "crossfit"] },
+  { slug: "kinderopvang",      label: "Kinderopvang",    plural: "kinderopvanglocaties", keywords: ["kinderopvang", "kinderdagverblijf", "opvang", "peuterspeelzaal"] },
+  { slug: "makelaar",          label: "Makelaar",        plural: "makelaars",            keywords: ["makelaar", "makelaardij"] },
+  { slug: "notaris",           label: "Notaris",         plural: "notarissen",           keywords: ["notaris", "notariaat"] },
+  { slug: "rijschool",         label: "Rijschool",       plural: "rijscholen",           keywords: ["rijschool", "autorijschool", "rij-instructeur"] },
+  { slug: "pedicure",          label: "Pedicure",        plural: "pedicures",            keywords: ["pedicure", "voetverzorging"] },
+  { slug: "woonwinkel",        label: "Woonwinkel",      plural: "woonwinkels",          keywords: ["woonwinkel", "interieur", "meubel", "woninginrichting"] },
+  { slug: "bowlen",            label: "Bowlingbaan",     plural: "bowlingbanen",         keywords: ["bowlen", "bowling"] },
+];
+
+function inferCategory(entry: typeof bedrijven[0]) {
+  const haystack = `${entry.title} ${entry.category ?? ""}`.toLowerCase();
+  return CATEGORY_KEYWORDS.find((c) => c.keywords.some((kw) => haystack.includes(kw))) ?? null;
+}
+
+const catInfo = b.category
+  ? (CATEGORY_KEYWORDS.find((c) => b.category!.toLowerCase().includes(c.slug)) ?? inferCategory(b))
+  : inferCategory(b);
+
+const related = bedrijven
+  .filter((x) => x.title !== b.title)
+  .filter((x) => {
+    if (b.category && x.category === b.category) return true;
+    if (catInfo) {
+      const xCat = inferCategory(x);
+      return xCat?.slug === catInfo.slug;
+    }
+    return false;
+  })
+  .slice(0, 5);
+
+const cityDisplay = SITE.name.replace(/\s*Krant\.?$/i, "").trim();
+const categoryLabel = b.category || catInfo?.label || "";
+const title = `${b.title} | Bedrijvengids ${cityDisplay}`;
+const description = `${b.title} is een lokaal bedrijf in ${cityDisplay}${categoryLabel ? ` (${categoryLabel})` : ""}${b.street ? ` gevestigd aan de ${b.street}` : ""}.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="jsonld">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": b.title,
+      ...(b.street ? { "address": {
+        "@type": "PostalAddress",
+        "streetAddress": b.street,
+        "addressLocality": b.city || cityDisplay,
+        "addressCountry": "NL",
+      }} : {}),
+      ...(b.phone ? { "telephone": b.phone } : {}),
+      ...(b.website ? { "url": b.website } : {}),
+    })} />
+  </Fragment>
+
+  <div class="border-b-4 border-accent-600 bg-[color:var(--surface)]">
+    <Container class="py-8 md:py-12">
+      <nav class="text-xs text-[color:var(--text-muted)] mb-4 flex items-center gap-1.5 flex-wrap" aria-label="Broodkruimelpad">
+        <a href="/" class="text-accent-600 hover:text-accent-700 transition-colors">Home</a>
+        <span>/</span>
+        <a href="/bedrijvengids/" class="text-accent-600 hover:text-accent-700 transition-colors">Bedrijvengids</a>
+        {catInfo && SITE.citySlug && (
+          <>
+            <span>/</span>
+            <a href={`/${catInfo.slug}-${SITE.citySlug}/`} class="text-accent-600 hover:text-accent-700 transition-colors">{catInfo.label}</a>
+          </>
+        )}
+        <span>/</span>
+        <span class="text-[color:var(--text)]">{b.title}</span>
+      </nav>
+      <div class="flex items-start gap-5">
+        <div class="flex-shrink-0 hidden sm:flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-600 text-white text-2xl font-display font-bold">
+          {b.title.charAt(0).toUpperCase()}
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-display font-bold text-[color:var(--text)]">{b.title}</h1>
+          {categoryLabel && (
+            <span class="mt-2 inline-block rounded-full border border-accent-300 dark:border-accent-700 text-accent-700 dark:text-accent-400 text-xs font-semibold px-3 py-0.5">
+              {categoryLabel}
+            </span>
+          )}
+        </div>
+      </div>
+    </Container>
+  </div>
+
+  <Container class="section-pad">
+    <div class="grid lg:grid-cols-[1fr,280px] gap-10">
+
+      <div class="space-y-6">
+        <div class="rounded-xl border border-[color:var(--border)] overflow-hidden">
+          <div class="bg-[color:var(--surface-raised,var(--surface))] px-5 py-4 border-b border-[color:var(--border)]">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Contactgegevens</h2>
+          </div>
+          <dl class="divide-y divide-[color:var(--border)]">
+            {b.street && (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <dt class="w-28 flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">Adres</dt>
+                <dd class="text-sm text-[color:var(--text)]">{b.street}{b.city ? `, ${b.city}` : ""}</dd>
+              </div>
+            )}
+            {!b.street && b.city && (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <dt class="w-28 flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">Plaats</dt>
+                <dd class="text-sm text-[color:var(--text)]">{b.city}</dd>
+              </div>
+            )}
+            {b.phone && (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <dt class="w-28 flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">Telefoon</dt>
+                <dd>
+                  <a href={`tel:${b.phone.replace(/\s/g, "")}`} class="text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline">
+                    {b.phone}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {b.website && (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <dt class="w-28 flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">Website</dt>
+                <dd>
+                  <a href={b.website} target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline break-all">
+                    {b.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {b.mapsUrl && (
+              <div class="flex items-center gap-4 px-5 py-5">
+                <dt class="w-28 flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">Route</dt>
+                <dd>
+                  <a href={b.mapsUrl} target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline">
+                    Bekijk op Google Maps &rarr;
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+
+        {related.length > 0 && (
+          <div>
+            <h2 class="text-base font-display font-bold mb-3">Meer {catInfo?.plural ?? b.category} in de regio</h2>
+            <ul class="divide-y divide-[color:var(--border)] rounded-xl border border-[color:var(--border)] overflow-hidden">
+              {related.map((r) => (
+                <li>
+                  <a href={`/${slugify(r.title)}/`} class="flex items-center justify-between px-5 py-3 hover:bg-[color:var(--surface)] transition-colors group no-underline">
+                    <span class="text-sm font-medium text-[color:var(--text)] group-hover:text-accent-600">{r.title}</span>
+                    {r.street && <span class="text-xs text-[color:var(--text-muted)] hidden sm:block">{r.street}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <aside class="space-y-5">
+        <div class="rounded-xl border-l-4 border-accent-600 bg-[color:var(--surface)] p-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-accent-600 mb-1">Redactie</p>
+          <h3 class="font-display font-bold text-base mb-2">Tip de redactie</h3>
+          <p class="text-sm text-[color:var(--text-muted)] leading-relaxed mb-4">Klopt er iets niet of heeft u nieuws uit de regio?</p>
+          <a href="/contact/" class="inline-flex h-9 items-center rounded-lg bg-accent-600 hover:bg-accent-700 px-4 text-xs font-semibold text-white transition-colors">
+            Stuur een tip
+          </a>
+        </div>
+        {catInfo && SITE.citySlug && (
+          <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-3">Meer {catInfo.label}</h3>
+            <a href={`/${catInfo.slug}-${SITE.citySlug}/`} class="block text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline">
+              &larr; Terug naar {catInfo.label}s
+            </a>
+          </div>
+        )}
+        <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-3">Bedrijvengids</h3>
+          <a href="/bedrijvengids/" class="block text-sm font-medium text-accent-600 dark:text-accent-400 hover:underline">
+            &larr; Terug naar alle bedrijven
+          </a>
+          <p class="mt-2 text-xs text-[color:var(--text-muted)]">{bedrijven.length} bedrijven in de gids</p>
+        </div>
+      </aside>
+
+    </div>
+  </Container>
+</BaseLayout>

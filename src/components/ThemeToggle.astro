@@ -1,0 +1,37 @@
+---
+// Persistent dark mode toggle, reads/writes localStorage["wh-theme"] = "dark" | "light"
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-label="Schakel tussen licht en donker thema"
+  class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-ink-700 dark:text-ink-200 hover:bg-ink-100 dark:hover:bg-ink-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)]"
+>
+  <svg data-theme-icon-light class="h-5 w-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+  </svg>
+  <svg data-theme-icon-dark class="h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+</button>
+
+<script is:inline>
+  (function () {
+    const applyTheme = () => {
+      const stored = localStorage.getItem("wh-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const dark = stored === "dark" || (!stored && prefersDark);
+      document.documentElement.classList.toggle("dark", dark);
+    };
+    applyTheme();
+    document.addEventListener("astro:after-swap", applyTheme);
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-theme-toggle]");
+      if (!btn) return;
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.setItem("wh-theme", isDark ? "dark" : "light");
+    });
+  })();
+</script>

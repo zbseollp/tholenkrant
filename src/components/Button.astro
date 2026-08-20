@@ -1,0 +1,51 @@
+---
+interface Props {
+  href?: string;
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md" | "lg";
+  class?: string;
+  type?: "button" | "submit" | "reset";
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  variant = "primary",
+  size = "md",
+  class: className = "",
+  type = "button",
+  ariaLabel,
+} = Astro.props;
+
+const base =
+  "inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] disabled:opacity-50 disabled:cursor-not-allowed";
+
+const variants = {
+  primary:
+    "bg-brand-700 text-white hover:bg-brand-800 dark:bg-brand-500 dark:hover:bg-brand-400 dark:text-ink-950 shadow-sm hover:shadow",
+  secondary:
+    "bg-ink-100 text-ink-900 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700",
+  ghost:
+    "bg-transparent text-ink-700 hover:bg-ink-100 dark:text-ink-200 dark:hover:bg-ink-800",
+};
+
+const sizes = {
+  sm: "h-9 px-4 text-sm",
+  md: "h-11 px-6 text-base",
+  lg: "h-14 px-8 text-lg",
+};
+
+const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
+---
+
+{
+  href ? (
+    <a href={href} class={classes} aria-label={ariaLabel}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} aria-label={ariaLabel}>
+      <slot />
+    </button>
+  )
+}

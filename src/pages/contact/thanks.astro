@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Container from "@components/Container.astro";
+---
+
+<BaseLayout
+  title="Bedankt voor je bericht"
+  description="We hebben je bericht ontvangen en nemen zo snel mogelijk contact op."
+  noindex
+>
+  <Container as="section" class="section-pad text-center">
+    <div class="mx-auto h-16 w-16 rounded-full bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-8">
+      <svg class="h-8 w-8 text-brand-700 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h1>Bedankt voor je bericht!</h1>
+    <p class="mt-6 text-lg text-[color:var(--text-muted)] max-w-xl mx-auto">
+      We hebben je bericht ontvangen en nemen zo snel mogelijk contact op.
+      Meestal reageren we binnen 2 werkdagen.
+    </p>
+    <div class="mt-10 flex justify-center gap-3 flex-wrap">
+      <a href="/" class="inline-flex h-12 items-center rounded-full bg-brand-700 hover:bg-brand-800 dark:bg-brand-500 dark:hover:bg-brand-400 px-7 text-white dark:text-ink-950 font-medium transition-all">
+        Terug naar de homepage
+      </a>
+      <a href="/blog/" class="inline-flex h-12 items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] hover:bg-ink-100 dark:hover:bg-ink-800 px-7 font-medium transition-all">
+        Bekijk het blog
+      </a>
+    </div>
+  </Container>
+</BaseLayout>
