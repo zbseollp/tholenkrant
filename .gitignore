@@ -31,3 +31,6 @@ migration/scripts/__pycache__/
 migration/lh_*.json
 migration/lh_*
 .claude/worktrees/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
