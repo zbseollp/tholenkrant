@@ -4,7 +4,6 @@ metaTitle: "Funda Tholen | woningen te koop in Tholen"
 slug: "funda-tholen"
 metaDescription: "Koop woningen online op Funda Tholen. Nieuwbouwhuizen te koop in Tholen, huurhuizen en appartementen in Tholen."
 ---
-
 ## Funda Tholen
 
 Welkom op de Funda Tholen pagina. Ben je op zoek naar een nieuwe woning of appartement in Tholen, bekijk dan het Funda overzicht. Er zit vast en zeker een mooi huis voor je bij in Tholen.

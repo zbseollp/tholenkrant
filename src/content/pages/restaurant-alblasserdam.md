@@ -4,7 +4,6 @@ metaTitle: "Restaurants Tholen | Bekijk alle restaurants in Tholen"
 slug: "restaurant-tholen"
 metaDescription: "Restaurants in Tholen en omgeving. Op zoek naar een restaurant in Tholen? Bekijk alle restaurants op onze restaurants pagina."
 ---
-
 ## Restaurant Tholen
 
 Ga je een dagje, of langer naar Tholen en ben je op zoek naar een goed restaurant? Of woon jij in Tholen en heb je zin om te gaan uiteten met je vrienden, geliefde of familie? Tholen heeft een breed aanbod aan diverse restaurants, zoals koffietentjes, Italiaanse restaurants, Indiase restaurants, Grieks restaurant, Chinese restaurants of cafetaria's. Voor iedereen is er wel een geschikt restaurant te vinden. Bij de meeste restaurants kun je de hele dag terecht. Er is een grote keuze aan veelzijdige keukens in Tholen, ook als je vegetarisch of veganistisch eet zijn er veel opties.

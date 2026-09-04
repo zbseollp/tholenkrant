@@ -4,7 +4,6 @@ metaTitle: "Snackbar Tholen | Bekijk alle snackbars in Tholen"
 slug: "snackbar-tholen"
 metaDescription: "Snackbar in Tholen en omgeving. Op zoek naar een snackbar in Tholen? Bekijk alle snackbars hier"
 ---
-
 ## Snackbar Tholen
 
 Doe maar twee porties friet met ketchup, een kroket en een vegetarische frikandel. Heb jij ook zin om je eten af te halen bij de snackbar of cafetaria en lekker thuis op de bank te genieten van je snacks en een film te kijken?

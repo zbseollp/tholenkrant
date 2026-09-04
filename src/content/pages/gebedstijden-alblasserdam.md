@@ -4,7 +4,6 @@ metaTitle: "Gebedstijden Tholen | Bekijk alle gebedstijden"
 slug: "gebedstijden-tholen"
 metaDescription: "Gebedstijden in Tholen. Op zoek naar de gebedstijden in Tholen? Op onze website bekijk je alle gebedstijden in Tholen."
 ---
-
 ## Gebedstijden Tholen
 
 Op deze pagina kun je de vijf dagelijkse islamitische gebedstijden bekijken voor de moskee in Tholen. Het eerste gebed is voor zonsopgang en het laatste gebed is bij zonsondergang.

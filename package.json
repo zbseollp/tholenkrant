@@ -7,13 +7,17 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "npm run prepare:blog && astro dev",
+    "build": "npm run prepare:blog && astro build",
     "deploy": "npm run build && npx wrangler deploy",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "prepare": "node .githooks/install.mjs"
+    "prepare": "node .githooks/install.mjs",
+    "prepare:blog": "node scripts/sanitize-blog.mjs && node scripts/normalize-synced-blog.mjs && node scripts/validate-blog.mjs && node scripts/verify-blog-pipeline.mjs && node scripts/assert-blog-files.mjs",
+    "prebuild": "node scripts/prebuild-sync.mjs",
+    "build:ci": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+    "sync:content": "node scripts/sync-content.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.14",

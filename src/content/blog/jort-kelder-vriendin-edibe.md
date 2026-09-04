@@ -1,8 +1,10 @@
 ---
 title: "Jort Kelder en zijn vriendin Edibe: een opvallende romance"
 pubDate: 2024-01-01
+date: "2024-01-01"
+slug: "jort-kelder-vriendin-edibe"
+metaDescription: "Nieuws Jort Kelder, de bekende Nederlandse journalist en presentator, heeft de afgelopen jaren verschillende relaties gehad die publiekelijk werden"
 ---
-
 Nieuws
 
 Jort Kelder, de bekende Nederlandse journalist en presentator, heeft de afgelopen jaren verschillende relaties gehad die publiekelijk werden gevolgd. Zijn huidige relatie met Edibe, een 23-jarige podc

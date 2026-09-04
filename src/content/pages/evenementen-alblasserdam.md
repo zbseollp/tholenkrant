@@ -4,7 +4,6 @@ metaTitle: "Evenementen Tholen | tholenkrant.nl"
 slug: "evenementen-tholen"
 metaDescription: "Bekijk de evenementenagenda van Tholen. Er worden heel vaak leuke evenementen georganiseerd in Tholen, voor alle leeftijden."
 ---
-
 ## Evenementenagenda van Tholen
 
 Er worden heel vaak leuke evenementen georganiseerd in Tholen. Evenementen in diverse genres en voor alle leeftijden. Er zal dus sowieso ook een leuke activiteit voor jou tussen zitten om aan deel te nemen of te bezoeken.

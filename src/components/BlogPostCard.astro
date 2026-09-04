@@ -1,12 +1,14 @@
 ---
 import Card from "./Card.astro";
+import { resolveFeaturedImage } from "@lib/blogImages";
 
 interface Props {
   href: string;
   title: string;
   excerpt?: string;
   date: Date | string;
-  image?: string;
+  /** Raw Payload value (path, absolute URL or media object) or an already-resolved URL. */
+  image?: string | unknown;
   imageAlt?: string;
   category?: string;
   priority?: boolean;
@@ -16,6 +18,11 @@ const dateStr =
   typeof date === "string"
     ? new Date(date).toLocaleDateString("nl-NL", { year: "numeric", month: "long", day: "numeric" })
     : date.toLocaleDateString("nl-NL", { year: "numeric", month: "long", day: "numeric" });
+
+// Resolve defensively: callers may still pass a raw /media/... path or media object.
+// `fallback: false` means "no picture" stays no picture — we show the category bar.
+const cover = resolveFeaturedImage({ featuredImage: image }, undefined, { fallback: false });
+const coverAlt = (typeof imageAlt === "string" && imageAlt.trim()) || title || "Artikelafbeelding";
 
 const categoryBars: Record<string, string> = {
   "lokaal":           "#1d4ed8",
@@ -31,17 +38,19 @@ const bar = categoryBars[cat] ?? categoryBars["overige"];
 ---
 
 <Card href={href} class="flex flex-col h-full">
-  {image ? (
-    <div class="aspect-[16/9] overflow-hidden bg-ink-100 dark:bg-ink-800 relative flex-shrink-0">
+  {cover ? (
+    <div class="blog-card-media relative overflow-hidden bg-ink-100 dark:bg-ink-800 flex-shrink-0">
+      <div class="absolute top-0 left-0 right-0 h-1 z-10" style={`background: ${bar};`}></div>
       <img
-        src={image}
-        alt={imageAlt ?? ""}
+        src={cover}
+        alt={coverAlt}
         width="640"
         height="360"
         loading={priority ? "eager" : "lazy"}
         fetchpriority={priority ? "high" : "auto"}
         decoding={priority ? "sync" : "async"}
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        class="blog-card-media__img absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        onerror="this.onerror=null;this.remove();"
       />
     </div>
   ) : (

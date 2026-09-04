@@ -4,7 +4,6 @@ metaTitle: "Benzineprijs Tholen | Vind de goedkoopste benzine in Tholen"
 slug: "benzineprijs-tholen"
 metaDescription: "Op zoek naar de goedkoopste benzine en dieselprijzen in Tholen? Bekijk de beste brandstofprijzen in Tholen bij ons"
 ---
-
 ## Benzineprijs Tholen
 
 Welkom op de benzineprijs pagina van de Tholenkrant. Op deze pagina kun je de goedkoopste benzine- en brandstofprijzen in Tholen vinden. Met de stijgende benzineprijs is het prettig om de goedkoopste benzine en diesel in Tholen te vinden.

@@ -4,7 +4,6 @@ metaTitle: "Schoorsteenveger Tholen | Zie schoorsteenvegers in Tholen"
 slug: "schoorsteenveger-tholen"
 metaDescription: "Schoorsteenvegers in Tholen en omgeving. Opzoek naar een schoorsteenveger in Tholen? Bekijk ze allemaal op onze website."
 ---
-
 ## Schoorsteenveger Tholen
 
 Heb je een schoorsteenveger uit Tholen of omgeving nodig? We hebben alle schoorsteenvegers uit de buurt voor je op een rijtje gezet. Je kunt een offerte aanvragen en zo de verschillende schoorsteenvegers met elkaar vergelijken qua prijs.

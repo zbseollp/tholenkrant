@@ -3,7 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import Container from "@components/Container.astro";
 import BlogPostCard from "@components/BlogPostCard.astro";
 import { SITE } from "@lib/site";
-import { getAllPosts, getRecentPosts, postUrl } from "@lib/posts";
+import { getAllPosts, getRecentPosts, postImage, postImageAlt, postUrl } from "@lib/posts";
 
 export async function getStaticPaths({ paginate }: { paginate: Function }) {
   const allPosts = await getAllPosts();
@@ -52,8 +52,8 @@ const description = `Alle artikelen op ${SITE.domain}${currentPage > 1 ? ` - pag
             title={post.data.title}
             excerpt={post.data.metaDescription}
             date={post.data.date}
-            image={post.data.featuredImage}
-            imageAlt={post.data.featuredImageAlt}
+            image={postImage(post)}
+            imageAlt={postImageAlt(post)}
             category={catName}
             priority={i === 0 && currentPage === 1}
           />

@@ -4,7 +4,6 @@ metaTitle: "Hotel Tholen | Bekijk alle hotels in Tholen"
 slug: "hotel-tholen"
 metaDescription: "Hotels in Tholen en omgeving. Op zoek naar een hotel in Tholen? Bekijk alle hotels op onze overnachtingspagina."
 ---
-
 ## Hotel Tholen
 
 Ben je op zoek naar een hotel om te overnachten in Tholen? In Tholen en de omgeving zijn veel hotels gevestigd. Ben je op dit moment in Tholen en zoek je last minute een overnachting, dan kun je een hotel uit het overzicht bellen voor de beschikbaarheid. Bekijk het volledige hoteloverzicht en kies het hotel dat het beste bij jouw verblijf in Tholen past.

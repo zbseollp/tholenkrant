@@ -5,7 +5,7 @@ import Container from "@components/Container.astro";
 import RelatedPosts from "@components/RelatedPosts.astro";
 import WeatherWidget from "@components/WeatherWidget.astro";
 import { SITE } from "@lib/site";
-import { formatDateNL } from "@lib/posts";
+import { formatDateNL, postImage, postImageAlt } from "@lib/posts";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -17,7 +17,9 @@ interface Props {
 const { post, headings = [], related = [], readingMinutes } = Astro.props;
 const { data } = post;
 
-const ogImage = data.featuredImage || "/og-default.png";
+const heroSrc = postImage(post);
+const heroAlt = postImageAlt(post);
+const ogImage = heroSrc || "/og-default.svg";
 const publishedTime = data.date.toISOString();
 
 const categorySlug = SITE.categories.find((c) => data.categories.includes(c.name))?.slug ?? null;
@@ -53,18 +55,20 @@ const categoryName = SITE.categories.find((c) => c.slug === categorySlug)?.name 
   <div id="progress-bar" class="fixed top-0 left-0 h-0.5 bg-accent-600 z-50 transition-all duration-100" style="width:0%"></div>
 
   <!-- Hero image (full width if available) -->
-  {data.featuredImage && (
-    <div class="w-full bg-ink-900 overflow-hidden" style="max-height:480px">
+  {heroSrc && (
+    <figure class="blog-hero-media w-full bg-ink-900 overflow-hidden">
       <img
-        src={data.featuredImage}
-        alt={data.featuredImageAlt || data.title}
-        class="w-full object-cover object-center"
-        style="max-height:480px; width:100%"
+        src={heroSrc}
+        alt={heroAlt}
+        width="1280"
+        height="720"
+        class="blog-hero-media__img absolute inset-0 h-full w-full object-cover object-center"
         loading="eager"
         fetchpriority="high"
         decoding="async"
+        onerror="this.onerror=null;this.closest('figure')?.remove();"
       />
-    </div>
+    </figure>
   )}
 
   <!-- Breadcrumb strip -->

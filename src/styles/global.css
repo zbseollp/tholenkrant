@@ -292,3 +292,29 @@
     transform: translateY(0);
   }
 }
+
+@layer components {
+  /* Card/hero covers fill an aspect box — do not let height:auto collapse them. */
+  .blog-card-media,
+  .blog-hero-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  .blog-card-media {
+    min-height: 11rem;
+  }
+  .blog-hero-media {
+    max-height: 480px;
+    min-height: 14rem;
+  }
+  .blog-card-media__img,
+  .blog-hero-media__img {
+    display: block;
+    max-width: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    object-position: center;
+  }
+}

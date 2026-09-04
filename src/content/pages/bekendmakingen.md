@@ -4,7 +4,6 @@ metaTitle: "Bekendmakingen Tholen | tholenkrant.nl"
 slug: "bekendmakingen"
 metaDescription: "Blijf op de hoogte van aangevraagde of verleende vergunningen in Tholen. Alle verbouwingen die momenteel in Tholen plaatsvinden op een rij."
 ---
-
 ## Bekendmakingen Tholen
 
 Dankzij de bekendmakingenspagina van onze krant blijf jij overal van op de hoogte. De website wordt dagelijks bijgewerkt om informatie zo snel mogelijk te delen. Bekijk alle bekendmakingen in Tholen op deze pagina.

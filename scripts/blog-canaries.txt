@@ -1,0 +1,3 @@
+# Blog slugs that must survive Payload sync + prepare:blog.
+# One slug per line; lines starting with # are ignored.
+# Add a slug here once tholenkrant has a post that must never disappear.

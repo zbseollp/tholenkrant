@@ -4,7 +4,6 @@ metaTitle: "Activiteiten Tholen | Bekijk alle activiteiten in Tholen"
 slug: "activiteiten-tholen"
 metaDescription: "Activiteiten in Tholen en omgeving. Opzoek naar een leuke activiteit in Tholen? Bekijk het overzicht op onze website."
 ---
-
 ## Activiteiten Tholen
 
 Woon je in Tholen of ben je in de buurt? Op deze pagina kun je alle activiteiten bekijken die in Tholen georganiseerd worden. Het hele jaar door worden er diverse activiteiten georganiseerd om aan deel te nemen of te bezoeken.

@@ -3,7 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import Container from "@components/Container.astro";
 import BlogPostCard from "@components/BlogPostCard.astro";
 import { SITE } from "@lib/site";
-import { getAllPosts, postUrl, formatDateNL } from "@lib/posts";
+import { getAllPosts, postUrl, postImage, postImageAlt, formatDateNL } from "@lib/posts";
 
 const allPosts = await getAllPosts();
 const recentPosts = allPosts.slice(0, 6).map((p) => ({ slug: p.id, title: p.data.title }));
@@ -179,7 +179,7 @@ const bedrijfCategorieen = ALL_BEDRIJF_CATS
             title={post.data.title}
             excerpt={post.data.metaDescription}
             date={post.data.date}
-            image={post.data.featuredImage}
+            image={postImage(post)}
             category={post.data.categories?.[0]}
             priority={i === 0}
           />

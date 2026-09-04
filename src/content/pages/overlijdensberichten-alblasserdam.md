@@ -4,7 +4,6 @@ metaTitle: "Overlijdensberichten Tholen | Bekijk ze hier bij nieuwekerkaandenijs
 slug: "overlijdensberichten-tholen"
 metaDescription: "Overlijdensberichten in Tholen en omgeving. Opzoek naar een overlijdensbericht in Tholen? Bekijk ze hier allemaal."
 ---
-
 ## Overlijden Tholen
 
 Bij ons lees je de meest recente overlijdensberichten uit Tholen. Zoek op achternaam om familieberichten te vinden en je medeleven te betuigen aan nabestaanden.

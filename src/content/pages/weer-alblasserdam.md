@@ -4,7 +4,6 @@ metaTitle: "Weer Tholen | Bekijk de Buienradar in Tholen"
 slug: "weer-tholen"
 metaDescription: "Altijd weten wat voor weer het is in Tholen? Bekijk de weersverwachting en buienradar online bij ons in de krant."
 ---
-
 ## Buienradar Tholen
 
 Bekijk het weer online in Tholen op dit moment. Ga voorbereid op pad door van tevoren te kijken naar de weersverwachting in Tholen.

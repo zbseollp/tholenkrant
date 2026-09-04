@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import BlogPostCard from "./BlogPostCard.astro";
-import { postUrl } from "@lib/posts";
+import { postImage, postImageAlt, postUrl } from "@lib/posts";
 
 interface Props {
   posts: CollectionEntry<"blog">[];
@@ -31,8 +31,8 @@ const { posts, heading = "Lees ook" } = Astro.props;
           title={post.data.title}
           excerpt={post.data.metaDescription}
           date={post.data.date}
-          image={post.data.featuredImage}
-          imageAlt={post.data.featuredImageAlt}
+          image={postImage(post)}
+          imageAlt={postImageAlt(post)}
           category={post.data.categories[0]}
         />
       ))}

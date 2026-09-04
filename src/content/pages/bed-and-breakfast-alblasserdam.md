@@ -4,7 +4,6 @@ metaTitle: "Bed and Breakfast Tholen | Bekijk alle B&B's in Tholen"
 slug: "bed-and-breakfast-tholen"
 metaDescription: "Bed and Breakfast in Tholen en omgeving. Op zoek naar een B&B in Tholen? Bekijk alle Bed and Breakfasts op onze website"
 ---
-
 ## Bed & Breakfast Tholen
 
 Ben je van plan om binnenkort naar het mooie Tholen te komen en zoek je nog een speciale overnachting, maar wil je iets anders dan een hotel of camping? Overweeg dan de verschillende B&B's in Tholen voor een onvergetelijke ervaring.

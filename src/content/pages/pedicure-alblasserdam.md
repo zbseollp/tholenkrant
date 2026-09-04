@@ -4,7 +4,6 @@ metaTitle: "Pedicure Tholen | Bekijk alle pedicures in Tholen"
 slug: "pedicure-tholen"
 metaDescription: "Pedicures in Tholen en omgeving. Opzoek naar een pedicure in Tholen? Bekijk alle pedicures op onze website."
 ---
-
 ## Pedicure Tholen
 
 Laat jij graag je voeten behandelen of heb je een pedicure nodig in Tholen vanwege medische klachten aan je voeten? Na een pedicurebehandeling zijn je voeten heerlijk glad en de nagels weer goed verzorgd. Adviseren wij elke 6 weken een pedicurebehandeling als je last hebt van eelt, likdoorns, verdikte nagels of hielkloven.

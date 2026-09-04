@@ -1,8 +1,10 @@
 ---
 title: "Inkomsten genereren via TikTok Live op een slimme manier"
 pubDate: 2024-01-01
+date: "2024-01-01"
+slug: "inkomsten-genereren-via-tiktok-live-op-een-slimme-manier"
+metaDescription: "Blog Inkomsten genereren via TikTok Live op een slimme manier TikTok is uitgegroeid tot veel meer dan een platform voor creatieve video’s en korte trends."
 ---
-
 Blog
 
 Inkomsten genereren via TikTok Live op een slimme manier TikTok is uitgegroeid tot veel meer dan een platform voor creatieve video’s en korte trends. Voor
