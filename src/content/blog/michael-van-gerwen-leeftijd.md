@@ -1,7 +1,7 @@
 ---
 title: "Michael van Gerwen leeftijd: hoe oud is de darter vandaag?"
-pubDate: 2024-01-01
-date: "2024-01-01"
+pubDate: "2025-10-29"
+date: "2025-10-29"
 slug: "michael-van-gerwen-leeftijd"
 metaDescription: "Nieuws Ben je benieuwd naar de huidige leeftijd van Michael van Gerwen en hoe dat zich verhoudt tot zijn carrière en leven? De Nederlandse darter,"
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Tobias Servaas en zijn vriendin – wat weten we echt over zijn liefdesleven?"
-pubDate: 2024-01-01
-date: "2024-01-01"
+pubDate: "2025-10-29"
+date: "2025-10-29"
 slug: "tobias-servaas-vriendin"
 metaDescription: "Nieuws Je vraagt je misschien af of Tobias Servaas een vriendin heeft, en wat er verder over zijn privéleven bekend is. De jonge Amsterdammer is vooral"
 ---

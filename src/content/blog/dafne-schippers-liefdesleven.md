@@ -1,7 +1,7 @@
 ---
 title: "Dafne Schippers en haar vriend: Een kijkje in haar liefdesleven"
-pubDate: 2024-01-01
-date: "2024-01-01"
+pubDate: "2025-10-29"
+date: "2025-10-29"
 slug: "dafne-schippers-liefdesleven"
 metaDescription: "Nieuws Dafne Schippers is een van de bekendste Nederlandse atleten, beroemd om haar snelheid op de 100 en 200 meter. Naast haar indrukwekkende"
 ---

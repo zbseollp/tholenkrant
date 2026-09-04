@@ -1,7 +1,7 @@
 ---
 title: "Matrassen vergelijken: zo vind je het matras dat echt bij je past"
-pubDate: 2024-01-01
-date: "2024-01-01"
+pubDate: "2026-05-28"
+date: "2026-05-28"
 slug: "matrassen-vergelijken-zo-vind-je-het-matras-dat-echt-bij-je-past"
 metaDescription: "Nieuws Een matras koop je meestal niet zomaar tussendoor. Omdat je er jarenlang op slaapt, is het belangrijk dat je een model kiest dat goed aansluit bij"
 ---
