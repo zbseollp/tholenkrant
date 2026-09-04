@@ -50,7 +50,8 @@ const bar = categoryBars[cat] ?? categoryBars["overige"];
         fetchpriority={priority ? "high" : "auto"}
         decoding={priority ? "sync" : "async"}
         class="blog-card-media__img absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        onerror="this.onerror=null;this.remove();"
+        data-bar={bar}
+        onerror="this.onerror=null;const m=this.closest('.blog-card-media');if(m){const b=document.createElement('div');b.className='h-1 w-full flex-shrink-0';b.style.background=this.dataset.bar;m.replaceWith(b);}else{this.remove();}"
       />
     </div>
   ) : (
