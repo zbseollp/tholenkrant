@@ -45,6 +45,48 @@ function stripElementorCss(text) {
 const FENCE_RE = /^\s*(?:```|~~~)/;
 
 const LIST_ITEM_RE = /^[-*+]\s+|^\d+[.)]\s+/;
+const TABLE_ROW_RE = /^\|/;
+
+/**
+ * Some exported posts separate paragraphs with a single newline. Markdown treats
+ * that as a soft break, so the whole article renders as one <p> — a 2,000+
+ * character wall of text with its subheadings buried inline.
+ *
+ * Only touch bodies that contain no blank line at all; anything already using
+ * proper paragraph breaks is left exactly as it is. List items and table rows
+ * stay adjacent so they keep forming one list/table.
+ */
+function splitRunOnParagraphs(body) {
+  if (/\n[ \t]*\n/.test(body)) return body;   // already has paragraphs
+  if (body.trim().length < 400) return body;  // too short to be a wall of text
+
+  const lines = body.split("\n");
+  const out = [];
+  let inFence = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    out.push(line);
+    if (FENCE_RE.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+
+    const next = lines[i + 1];
+    if (next === undefined || !line.trim() || !next.trim()) continue;
+
+    const cur = line.trim();
+    const nxt = next.trim();
+    const bothList = LIST_ITEM_RE.test(cur) && LIST_ITEM_RE.test(nxt);
+    const bothTable = TABLE_ROW_RE.test(cur) && TABLE_ROW_RE.test(nxt);
+    if (bothList || bothTable) continue;
+
+    out.push("");
+  }
+
+  return out.join("\n");
+}
 
 function dedentProse(body) {
   // Split on either line ending and re-join with \n so a stray \r cannot hide
@@ -126,7 +168,7 @@ function sanitizeContent(raw) {
 
   const [, open, fm, close, body] = m;
   const cleanFm = stripJunkFrontmatterText(sanitizeCommon(fm)).replace(/\n{3,}/g, "\n").trim();
-  const cleanBody = sanitizeCommon(dedentProse(stripElementorCss(body)))
+  const cleanBody = splitRunOnParagraphs(sanitizeCommon(dedentProse(stripElementorCss(body))))
     .replace(/\n{4,}/g, "\n\n\n")
     .replace(/^\s+/, "");
   return `${open}${cleanFm}${close}${cleanBody}`;
